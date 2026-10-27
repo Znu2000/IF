@@ -1,0 +1,38 @@
+  [saved] 09_lonlat_hour_3d.html
+매칭 확정 사고: 69/167건  (반경 3.0km, ±1h, 1순위 선박)
+group
+사고 전(-12~-2h)    460
+사고시점(±1h)        189
+  [saved] 09_feature3d.html
+  [saved] 09_feature3d_static.png
+
+정상 대비 사고시점 중앙값 차이 / IQR (절대값 큰 순 → 3D 축 후보)
+ step_max_m          0.841
+bbox_w_km           0.797
+step_std_m          0.761
+path_km             0.757
+speed_kn            0.757
+rog_km              0.699
+disp_km             0.692
+step_mean_m         0.679
+bbox_area_km2       0.587
+bbox_h_km           0.571
+gap_km              0.555
+stop_ratio         -0.445
+n_points            0.397
+n_parts             0.333
+turn_std            0.191
+turn_abs_mean      -0.150
+spec_entropy        0.115
+sharp_turn_ratio   -0.115
+heading_R           0.048
+straightness       -0.024
+lowfreq_ratio       0.003
+  [saved] 09_pca3d.html
+  [saved] 09_iforest_score.png
+IsolationForest AUC (정상 vs 사고시점(±1h)): 0.628   (0.5=구분 못함)
+IsolationForest AUC (정상 vs 사고 전(-12~-2h)): 0.496   (0.5=구분 못함)
+※ 행(1시간) 단위 '정적' 피처 기준. 실제 TSAD는 선박별 과거 대비 변화(개인 baseline)도 봐야 함
+  [saved] 09_accident_stc.html
+
+✅ EDA 9 완료

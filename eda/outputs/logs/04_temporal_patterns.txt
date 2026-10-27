@@ -1,0 +1,15 @@
+  [saved] 04_hourly_activity.png
+  [saved] 04_month_hour_heatmap.png
+  [saved] 04_dow_activity.png
+  [saved] 04_departure_return.png
+  [saved] 04_hourly_behavior.png
+  [saved] 04_vessel_raster.png
+자정을 넘겨 다음날 0시까지 이어지는 선박-일 비율(%)
+ fishing_code
+연안복합       22.79
+자망         18.38
+통발          24.7
+채낚기연승낚시     62.8
+→ 비율이 높은 클래스는 '하루' 대신 '연속 활동(trip)' 단위로 궤적을 잘라야 함
+
+✅ EDA 4 완료

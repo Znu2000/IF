@@ -17,3 +17,22 @@
 - 대회 원본 데이터(`문제 데이터_수정_0928/`, 사고 엑셀 등)는 **저장소에 올리지 않습니다** (`.gitignore`).
 - 각자 로컬에 두고 `SED_DATA_ROOT` 환경변수로 경로를 지정합니다.
 - 중간 산출물(`*.parquet`)도 용량이 커서 제외하며, 각 브랜치의 코드로 다시 만들 수 있습니다.
+
+---
+
+## `jinwoo` 브랜치 구성
+```
+eda/      EDA 파이프라인 00~09 (캐시 생성 → 개요·궤적·피처·시간·사고·분리력·시공간·클러스터·이상 3D)
+          outputs/ 그림·HTML·로그 (cache/ 는 00_build_cache.py 로 재생성)
+model/    과제 1 분류: 팀원 피처 명세 통합 → 피처 랭킹 → 모델 실험
+          results/ 랭킹·지표 CSV, 그림, OOF 예측(.npy), 피처 카탈로그(SeD_피처목록.xlsx)
+docs/     HANDOFF.md (인수인계), competition_overview.md (대회 개요)
+```
+- 결과 요약: [model/RESULTS.md](model/RESULTS.md) · 실행 순서: [model/README.md](model/README.md) · 피처 설명: `model/results/SeD_피처목록.xlsx`
+- 주요 결과 (선박 단위 macro-F1, 5-fold): 위치 제외 **0.523** / 위치 포함 **0.540**
+
+```bash
+pip install -r model/requirements.txt
+export SED_DATA_ROOT="/path/to/문제 데이터_수정_0928"
+cd model && python fe_hourly.py && python fe_aggregate.py && python rank_features.py && python train_classifiers.py
+```
