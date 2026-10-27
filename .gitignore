@@ -1,0 +1,26 @@
+# ── 대회 원본 데이터 (업로드 금지: 용량·보안) ──
+문제 데이터*/
+샘플데이터*.csv
+vpass_*.csv
+*어선 사고현황*.xlsx
+
+# ── 대용량 중간 산출물 (코드로 재생성) ──
+*.parquet
+eda/cache/
+model/features/
+
+# ── 팀 문서 원본 (필요 시 별도 공유) ──
+*.pptx
+*.docx
+
+# ── Python / 환경 ──
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+.env
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
