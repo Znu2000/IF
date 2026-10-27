@@ -1,0 +1,10 @@
+격자 454개 / 순도(최다 클래스 비율) 평균 0.900, 순도>0.9 격자 비율 68.5%
+행 가중 평균 순도: 0.818  → '격자만 보고 최다 클래스로 찍기' 정확도 상한(같은 선박 포함이라 낙관적)
+  [saved] 07_grid_dominant_class.png
+  [saved] 07_month_class_density.png
+  [saved] 07_monthly_stability.png
+  [saved] 07_distance_from_start_by_hour.png
+  [saved] 07_space_time_cube.html
+  [saved] 07_hourly_animation.html
+
+✅ EDA 7 완료

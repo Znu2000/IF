@@ -1,0 +1,46 @@
+클러스터링 대상 선박-일 궤적: 3,173
+실루엣: {4: 0.107, 5: 0.106, 6: 0.067, 7: 0.07, 8: 0.07, 9: 0.07, 10: 0.068, 11: 0.071, 12: 0.068} → k = 4
+ARI=0.074, NMI=0.111  (1에 가까울수록 클러스터=조업형태)
+  [saved] 08_shape_clusters.png
+  [saved] 08_shape_cluster_composition.png
+Traceback (most recent call last):
+  File "C:\Users\jinwo\SeD_DATA_AI\eda\08_trajectory_clustering.py", line 112, in <module>
+    sns.heatmap((prof - prof.mean()) / prof.std(), annot=prof.round(1), fmt="", cmap="RdBu_r", center=0, ax=axes[0])
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\seaborn\matrix.py", line 459, in heatmap
+    plotter.plot(ax, cbar_ax, kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\seaborn\matrix.py", line 306, in plot
+    mesh = ax.pcolormesh(self.plot_data, cmap=self.cmap, **kws)
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\matplotlib\__init__.py", line 1524, in inner
+    return func(
+        ax,
+        *map(cbook.sanitize_sequence, args),
+        **{k: cbook.sanitize_sequence(v) for k, v in kwargs.items()})
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\matplotlib\axes\_axes.py", line 6534, in pcolormesh
+    collection = mcoll.QuadMesh(
+        coords, antialiased=antialiased, shading=shading,
+        array=C, cmap=cmap, norm=norm, colorizer=colorizer, alpha=alpha, **kwargs)
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\matplotlib\collections.py", line 2390, in __init__
+    Collection.__init__(self, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\matplotlib\collections.py", line 209, in __init__
+    self._internal_update(kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\matplotlib\artist.py", line 1233, in _internal_update
+    return self._update_props(
+           ~~~~~~~~~~~~~~~~~~^
+        kwargs, "{cls.__name__}.set() got an unexpected keyword argument "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "{prop_name!r}")
+        ^^^^^^^^^^^^^^^^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\matplotlib\artist.py", line 1209, in _update_props
+    ret.append(func(v))
+               ~~~~^^^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\matplotlib\collections.py", line 2264, in set_array
+    return super().set_array(A)
+           ~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\matplotlib\colorizer.py", line 568, in set_array
+    raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                    "converted to float")
+TypeError: Image data of dtype object cannot be converted to float

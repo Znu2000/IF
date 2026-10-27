@@ -1,0 +1,7 @@
+점 개수: 1,513,497  선박 수: 70
+  [saved] 02_density_by_class.png
+  [saved] 02_sample_tracks.png
+  [saved] 02_spaghetti_origin.png
+  [saved] 02_tracks_interactive.html
+
+✅ EDA 2 완료

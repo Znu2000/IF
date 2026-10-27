@@ -1,0 +1,39 @@
+
+▶ vpass_1월 데이터.csv
+  chunk 00: 497,942 rows   17.8s
+
+▶ vpass_2월 데이터.csv
+  chunk 00: 479,290 rows   16.8s
+
+▶ vpass_3월 데이터.csv
+  chunk 00: 500,000 rows   15.3s
+  chunk 01: 157,292 rows    4.4s
+
+▶ vpass_4월 데이터.csv
+  chunk 00: 500,000 rows   25.1s
+  chunk 01: 217,294 rows    8.1s
+
+▶ vpass_5월 데이터.csv
+  chunk 00: 500,000 rows   16.5s
+  chunk 01: 261,846 rows    9.3s
+
+▶ vpass_6월 데이터.csv
+  chunk 00: 500,000 rows   19.9s
+  chunk 01: 273,405 rows    9.0s
+
+▶ 저장 중...
+{
+  "rows": 3887069,
+  "na_part_dt": 0,
+  "na_rfid_id": 0,
+  "na_rfid_time": 0,
+  "na_geom": 2,
+  "na_fishing_code": 1,
+  "geom_not_multiline": 3,
+  "dup_key_in_chunk": 0,
+  "dup_full_in_chunk": 0,
+  "broken_rows_dropped": 1,
+  "invalid_hour": 0,
+  "invalid_fishing_code": 1
+}
+
