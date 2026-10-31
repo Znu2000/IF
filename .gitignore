@@ -24,3 +24,8 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# ── 실제 선박 ID가 들어간 산출물 / 제출 파일 (업로드 금지) ──
+model/results/anom_labels.csv
+model/results/test_pred_all.csv
+model/results/submission*.xlsx

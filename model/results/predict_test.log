@@ -1,0 +1,20 @@
+Pool B: k*=50 피처, 가설 피처 30개 / 학습 7,372척, 테스트 7,768척
+클래스 가중: {'연안복합': 0.905, '자망': 0.819, '통발': 1.105, '채낚기연승낚시': 0.368} (OOF macro-F1 0.5288 → 0.5423)
+
+예측 분포 (테스트 전체) vs 학습 비율
+          test_pred  train
+연안복합         0.549  0.495
+자망           0.265  0.342
+통발           0.161  0.142
+채낚기연승낚시      0.024  0.021
+
+테스트A 100척 → submission_testA.xlsx  (피처 없음 0척: [])
+pred
+연안복합       59
+자망         22
+통발         16
+채낚기연승낚시     3
+예측 확률 중앙값 0.536
+
+분포 이동 점검 (학습 2026 vs 테스트 2025 구분 AUC): 0.679
+구분에 많이 쓰인 피처: mv_stay_gap_med_m_mean, drift_heading_R_q50, season_m5_share, season_m1_share, moving_spring_mean, fishing_lat, mv_stay_line_elong_std, lon_c, mv_drift_cycles_mean, fh_ks_turn_med_q50

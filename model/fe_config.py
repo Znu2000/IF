@@ -34,7 +34,8 @@ N_FOLDS = 5
 
 
 def vpass_files():
-    files = sorted(DATA_ROOT.glob(VPASS_GLOB))
+    # 1027 버전부터 테스트셋 파일명도 vpass_*.csv → 학습 데이터에 섞이지 않게 테스트 폴더 제외
+    files = sorted(f for f in DATA_ROOT.glob(VPASS_GLOB) if "테스트" not in str(f))
     if not files:
         raise FileNotFoundError(f"VPASS CSV를 찾지 못함: {DATA_ROOT / VPASS_GLOB}")
     return files

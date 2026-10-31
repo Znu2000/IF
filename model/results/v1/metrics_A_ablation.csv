@@ -1,0 +1,2 @@
+﻿pool,model,macro_f1,f1_fold_mean,f1_fold_std,acc,bal_acc,f1_연안복합,f1_자망,f1_통발,f1_채낚기연승낚시,gill_vs_coast_f1
+A,lgbm_base,0.4596,0.46,0.0107,0.534,0.5123,0.6506,0.4422,0.2497,0.4957,0.6121

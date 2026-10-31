@@ -64,6 +64,14 @@ H = {  # 시간(L1) 1시간 항적
     "spec_entropy": ("step 길이 스펙트럼 엔트로피: 이동 리듬의 불규칙성", "진우"),
     "lowfreq_ratio": ("step 저주파 에너지 비율: 느린 주기 변화의 비중", "진우"),
     "is_stationary": ("정박 여부 (평활 범위 <100m)", "나연"),
+    # v2
+    "stay_gap_med_m": ("연속 체류 지점 사이 간격 중앙값(m): 통발 부표 간격", "v2 통발 기하"),
+    "stay_gap_cv": ("체류 지점 간격의 변동계수: 낮을수록 일정한 간격", "v2 통발 기하"),
+    "stay_line_elong": ("체류 지점들의 PCA 연신율: 일렬로 놓일수록 큼", "v2 통발 기하"),
+    "stay_dur_med_min": ("체류 1회 지속 시간 중앙값(분)", "v2 통발 기하"),
+    "heading_autocorr": ("2스텝 떨어진 진행 방향의 유사도 (1=같은 방향 유지)", "v2 가설 D"),
+    "drift_cycles": ("표류(0.3~2kn) 후 반대 방향 고속(>4kn) 재배치 횟수: 낚시형 톱니 패턴", "v2 가설 D"),
+    "ks_straight_bearing": ("최장 직선 구간의 축 방위(0~180°)", "v2 가설 B"),
 }
 D = {  # 선박-일(L2)
     "n_hours": ("하루 기록 시간대 수", "나연·민성"), "first_hour": ("첫 기록 시각", "민성·지유"),
@@ -127,6 +135,24 @@ S3 = {  # 선박(L3) 전용
     "home_port_km": ("모항↔최근접 공용항구 거리(km)", "나연"),
     "fishing_lon": ("조업 중심 경도 (중앙값)", "민성"), "fishing_lat": ("조업 중심 위도 (중앙값)", "민성"),
 }
+S3.update({  # v2
+    "state_entropy": ("시간대 상태 분포의 엔트로피 (상태를 고르게 쓸수록 큼)", "v2 상태 전이"),
+    "moon_bright_minus_dark_rate": ("출어율: 보름 근처(조명>75%) − 그믐 근처(<25%)", "v2 자연 주기"),
+    "spring_minus_neap_rate": ("출어율: 사리 근처 − 조금 근처 (달 나이로 근사한 물때)", "v2 자연 주기"),
+    "night_bright_minus_dark": ("야간 조업 비중: 밝은 밤 − 어두운 밤", "v2 자연 주기"),
+    "moving_illum_mean": ("출어일의 평균 달 조명", "v2 자연 주기"),
+    "moving_spring_mean": ("출어일의 평균 사리 지수", "v2 자연 주기"),
+    "dep_rel_sunrise_q50": ("조업 시작 − 일출 (시간, 중앙값)", "v2 자연 주기"),
+    "end_rel_sunset_q50": ("조업 종료 − 일몰 (시간, 중앙값)", "v2 자연 주기"),
+    "dark_fishing_share": ("이동 시간 중 일몰~일출 사이 비중 (실제 어둠 기준)", "v2 자연 주기"),
+    "line_bearing_consistency": ("최장 직선 구간 방위가 날마다 같은 정도 (0~1)", "v2 가설 B"),
+    "straight_runs_per_day": ("출어일당 300m 이상 직선 구간이 있는 시간대 수", "v2 가설 B"),
+})
+_ST = {"port": "항구 정박", "stop": "해상 정지", "drift": "표류", "fish": "조업속도", "transit": "항해"}
+for _a, _an in _ST.items():
+    S3[f"dwell_{_a}_h"] = (f"'{_an}' 상태가 연속으로 이어진 평균 시간", "v2 상태 전이")
+    for _b, _bn in _ST.items():
+        S3[f"trans_{_a}_{_b}"] = (f"다음 시간에 '{_an}' → '{_bn}' 로 바뀔 확률", "v2 상태 전이")
 for _m in range(1, 7):
     S3[f"season_m{_m}_share"] = (f"{_m}월 출어일 비중", "가설 H")
 for _k in range(8):
@@ -154,10 +180,14 @@ TAXONOMY = [
     ("방향·회전(D)", "급선회·U턴", "크게 꺾거나 되돌아가는 횟수/비율",
      ["n_turn45", "n_turn90", "n_uturn", "large_turn_ratio", "uturn_ratio", "turn90_per_km"]),
     ("방향·회전(D)", "루프", "누적 회전으로 센 제자리 맴돌기 (가설 D)", ["loops"]),
+    ("방향·회전(D)", "방향 지속·재배치 사이클 (v2)", "같은 방향을 얼마나 유지하나, 표류 후 고속 재배치 반복 (가설 D)",
+     ["heading_autocorr", "drift_cycles"]),
     ("경로형태·직선투망(B)", "직진도·구불거림", "얼마나 곧게 가는가", ["straightness", "day_straightness", "seg_sinuosity_mean"]),
     ("경로형태·직선투망(B)", "경로 반복도", "좁은 범위 안을 얼마나 오가는가", ["path_over_diag", "path_over_rg"]),
     ("경로형태·직선투망(B)", "직선 투망 형상", "그물을 직선으로 펼치는 투망 패턴 (가설 B)",
      ["pca_elong", "ks_straight_max_m", "bbox_aspect"]),
+    ("경로형태·직선투망(B)", "직선 방향 일관성 (v2)", "날마다 같은 방향으로 직선 투망하나, 직선 구간이 몇 번 나오나",
+     ["ks_straight_bearing", "line_bearing_consistency", "straight_runs_per_day"]),
     ("이동량·공간범위", "이동거리", "얼마나 많이 움직였나",
      ["dist_m", "dist_pts_m", "dist_raw_m", "dist_day_km", "dist_raw_day_km"]),
     ("이동량·공간범위", "변위·이격", "출발점에서 얼마나 멀어졌나",
@@ -175,6 +205,8 @@ TAXONOMY = [
       "fish_share", "in_port_ratio", "stationary_ratio", "moving_hour_share", "is_stationary"]),
     ("시간 사용·항차", "상태 전환", "상태가 얼마나 자주 바뀌나",
      ["n_transitions", "transitions_per_day", "n_stop_move_switch"]),
+    ("시간 사용·항차", "상태 전이 구조 (v2)", "어떤 상태에서 어떤 상태로 넘어가나, 한 상태에 얼마나 머무나",
+     [f"trans_{a}_{b}" for a in _ST for b in _ST] + [f"dwell_{a}_h" for a in _ST] + ["state_entropy"]),
     ("시간 사용·항차", "항차(출항~귀항)", "출항 횟수, 항차 길이, 귀항 여부 (민성 B)",
      ["departures", "trips_per_day", "trip_hours_q50", "returned_ratio", "returned_to_port"]),
     ("시간 사용·항차", "출어 활동량", "얼마나 자주·오래 바다에 나가나",
@@ -191,6 +223,13 @@ TAXONOMY = [
      ["return_after_absence", "revisit_cell_ratio", "n_cells_200m", "top3_cell_share"]),
     ("재방문·어장반복(A)", "날짜 간 어장 반복", "여러 날 같은 어장을 다시 찾나", ["cross_day_revisit", "site_jaccard_mean"]),
     ("체류점", "체류점", "반경 30m 안에 3점 이상 머문 지점 (민성, 지터 강건 정지 판정)", ["n_stays", "stay_frac"]),
+    ("체류점", "체류 지점 배열·통발 기하 (v2)", "부표를 따라 줄지어 멈추는 통발 패턴: 간격·일렬성·체류 시간",
+     ["stay_gap_med_m", "stay_gap_cv", "stay_line_elong", "stay_dur_med_min"]),
+    ("자연 주기 (v2)", "달·물때", "달 밝기·사리/조금(달 나이 근사)에 따라 출어·야간 조업이 달라지나",
+     ["moon_bright_minus_dark_rate", "spring_minus_neap_rate", "night_bright_minus_dark", "moving_illum_mean",
+      "moving_spring_mean"]),
+    ("자연 주기 (v2)", "해 기준 시각", "시계 대신 일출·일몰 기준으로 본 조업 시각",
+     ["dep_rel_sunrise_q50", "end_rel_sunset_q50", "dark_fishing_share"]),
     ("품질·기록량", "기록량", "GPS 점·구간이 얼마나 찍혔나",
      ["n_points_raw", "n_points", "n_segments", "gap_count", "pts_per_seg", "uniq_pos_ratio", "n_points_day",
       "n_segments_mean", "n_move_steps"]),

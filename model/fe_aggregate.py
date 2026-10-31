@@ -5,6 +5,9 @@
 출력 : features/shipday.parquet       (선박·날짜 1행)
        features/ship_features.parquet (선박 1행, 분류 학습용)
        features/port_cells.csv        (공용 항구 격자)
+       features/daytype_model.joblib  (출어일 유형 KMeans + 전처리, 테스트에 그대로 재사용)
+  --test : features/test_hourly_MM.parquet → test_shipday / test_ship_features.parquet
+           항구 격자·출어일 유형 모델은 학습 데이터에서 만든 것을 고정해서 사용 (테스트로 다시 적합하지 않음)
 
 단계
   1) 공용 항구 (나연)   : 정박 시간대 500m 격자 중 ≥10척이 정박한 칸
@@ -14,9 +17,13 @@
   5) 선박 집계          : 출어일 통계(mean/median/std), 조업 시간대 풀링 분위수(민성 C),
                           어장 반복(cross-day revisit, site Jaccard), 계절(가설 H), bag-of-days(가설 G), 위치(LOC)
 
-실행: python fe_aggregate.py
+실행: python fe_aggregate.py            (학습)
+      python fe_aggregate.py --test     (테스트, 학습 집계를 먼저 실행해야 함)
 """
+import argparse
 import time
+
+import joblib
 
 import numpy as np
 import pandas as pd
@@ -43,8 +50,8 @@ def grid(lon, lat, m):
     return gx * 1_000_000 + gy
 
 
-def load_hourly():
-    files = sorted(C.FEAT_DIR.glob("hourly_*.parquet"))
+def load_hourly(prefix="hourly"):
+    files = sorted(C.FEAT_DIR.glob(f"{prefix}_*.parquet"))
     H = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
     H = H[H["n_points"].notna()].reset_index(drop=True)
     H["fishing_code"] = H["fishing_code"].astype("object")
@@ -59,14 +66,15 @@ def load_hourly():
 # ─────────────────────────────────────────────
 # 1~3. 항구 / 모항 / 상태
 # ─────────────────────────────────────────────
-def add_port_state(H):
+def add_port_state(H, ports=None):
     st = H["is_stationary"].to_numpy() == 1
-    cell = grid(H["lon_c"], H["lat_c"], C.PORT_GRID_M)
-    s = pd.DataFrame({"cell": cell[st], "rid": H["rfid_id"].to_numpy()[st],
+    s = pd.DataFrame({"rid": H["rfid_id"].to_numpy()[st],
                       "lon": H["lon_c"].to_numpy()[st], "lat": H["lat_c"].to_numpy()[st]})
-    agg = s.groupby("cell").agg(n_vessels=("rid", "nunique"), lon=("lon", "median"), lat=("lat", "median"))
-    ports = agg[agg["n_vessels"] >= C.PORT_MIN_VESSELS].reset_index()
-    ports.to_csv(C.FEAT_DIR / "port_cells.csv", index=False)
+    if ports is None:  # 학습: 공용 항구 격자를 만들고 저장 / 테스트: 학습 격자를 받아서 사용
+        s["cell"] = grid(s["lon"], s["lat"], C.PORT_GRID_M)
+        agg = s.groupby("cell").agg(n_vessels=("rid", "nunique"), lon=("lon", "median"), lat=("lat", "median"))
+        ports = agg[agg["n_vessels"] >= C.PORT_MIN_VESSELS].reset_index()
+        ports.to_csv(C.FEAT_DIR / "port_cells.csv", index=False)
     print(f"공용 항구 격자: {len(ports)}칸")
     tree = BallTree(np.radians(ports[["lat", "lon"]].to_numpy()), metric="haversine")
     d, _ = tree.query(np.radians(H[["lat_c", "lon_c"]].to_numpy()), k=1)
@@ -112,7 +120,9 @@ MV_FEATS = ["sp_mean", "sp_p90", "sp_std", "sp_change_mean", "frac_slow", "frac_
             "uniq_pos_ratio", "pca_elong", "seg_sinuosity_mean", "ks_speed_med", "ks_speed_p90",
             "ks_heading_R", "ks_turn_med", "ks_straight_max_m", "slow_run_max_min", "speed_entropy",
             "n_stays", "stay_frac", "spec_entropy", "lowfreq_ratio", "step_cv", "spike_ratio",
-            "raw_clean_ratio", "n_segments", "n_points", "bin_dispersion_m"]
+            "raw_clean_ratio", "n_segments", "n_points", "bin_dispersion_m",
+            # v2: 통발 어구 기하 / 방향 지속성 / 표류-재배치 사이클
+            "stay_gap_med_m", "stay_gap_cv", "stay_line_elong", "stay_dur_med_min", "heading_autocorr", "drift_cycles"]
 
 
 def day_revisit(H):
@@ -260,14 +270,105 @@ DAY_STAT = ["n_hours", "n_moving_hours", "moving_ratio", "active_span_h", "first
 HOUR_POOL = ["ks_speed_med", "ks_speed_p90", "rg_med_m", "ks_heading_R", "ks_turn_med", "n_stays",
              "ks_straight_max_m", "slow_run_max_min", "sp_p50", "sp_p90", "turn_mean", "straightness",
              "pca_elong", "frac_slow", "frac_mid", "path_over_rg", "speed_entropy", "stay_frac",
-             "uniq_pos_ratio", "dist_m"]
+             "uniq_pos_ratio", "dist_m",
+             "stay_gap_med_m", "stay_line_elong", "heading_autocorr", "drift_cycles"]  # v2
+STATE_SLUG = {PORT: "port", SEA_STOP: "stop", DRIFT: "drift", FISH: "fish", TRANSIT: "transit"}
+SYNODIC_DAYS = 29.530588853
+REF_NEW_MOON = pd.Timestamp("2000-01-06 18:14")  # UTC 기준 삭(new moon)
+
+
+def transition_feats(H):
+    """v2 상태 전이 구조: 연속 시간대(같은 날, 시각 +1) 사이 상태 전이 확률 25개 + 상태별 평균 체류 시간 + 상태 엔트로피"""
+    rid, pdt = H["rfid_id"].to_numpy(), H["part_dt"].to_numpy()
+    hr, st = H["hour"].to_numpy().astype(int), H["state"].to_numpy()
+    cons = np.r_[False, (rid[1:] == rid[:-1]) & (pdt[1:] == pdt[:-1]) & (hr[1:] == hr[:-1] + 1)]
+    j = np.flatnonzero(cons)
+    T = pd.DataFrame({"rid": rid[j], "a": st[j - 1], "b": st[j]})
+    cnt = T.groupby(["rid", "a", "b"]).size().unstack(["a", "b"], fill_value=0)
+    full = pd.MultiIndex.from_product([list(STATE_SLUG), list(STATE_SLUG)], names=["a", "b"])
+    cnt = cnt.reindex(columns=full, fill_value=0)
+    out = pd.DataFrame(index=cnt.index)
+    for a, sa in STATE_SLUG.items():
+        tot = cnt.loc[:, a].sum(axis=1)
+        for b, sb in STATE_SLUG.items():
+            out[f"trans_{sa}_{sb}"] = (cnt[(a, b)] / tot).where(tot > 0)  # 출발 상태가 없으면 NaN
+    run = np.cumsum(~cons | np.r_[True, st[1:] != st[:-1]])
+    R = pd.DataFrame({"rid": rid, "state": st, "run": run}).groupby(["rid", "run"]).agg(state=("state", "first"),
+                                                                                       n=("state", "size"))
+    dw = R.groupby(["rid", "state"])["n"].mean().unstack()
+    for s, sl in STATE_SLUG.items():
+        out[f"dwell_{sl}_h"] = dw[s] if s in dw else np.nan
+    share = pd.crosstab(rid, st, normalize="index").to_numpy()
+    ent = pd.Series(-(share * np.log(share + 1e-12)).sum(1) / np.log(len(STATE_SLUG)),
+                    index=pd.crosstab(rid, st).index)
+    out["state_entropy"] = ent
+    return out
+
+
+def natural_cycle_feats(H, D):
+    """v2 자연 주기: 달 위상(조명)·물때(사리/조금 근사)·일출일몰 기준 조업 시각
+    물때는 실제 조위 대신 달 나이로 근사: 삭·망 근처 = 사리, 상·하현 근처 = 조금"""
+    rk = "rfid_id"
+    d = D[[rk, "part_dt", "n_moving_hours", "night_ratio", "mv_first_hour", "mv_last_hour", "lat_c", "lon_c"]].copy()
+    date = pd.to_datetime(d["part_dt"].astype(str), format="%Y%m%d")
+    age = ((date + pd.Timedelta(hours=3) - REF_NEW_MOON).dt.total_seconds() / 86400) % SYNODIC_DAYS  # KST 정오 = UTC 03시
+    ph = np.cos(2 * np.pi * age / SYNODIC_DAYS)
+    d["illum"], d["spring"] = (1 - ph) / 2, np.abs(ph)
+    d["moving"] = (d["n_moving_hours"] >= 1).astype(float)
+    # 일출·일몰 (KST, 근사식: 적위 + 균시차)
+    n = date.dt.dayofyear.to_numpy()
+    decl = np.radians(23.44) * np.sin(2 * np.pi * (284 + n) / 365)
+    cosw = np.clip(-np.tan(np.radians(d["lat_c"].to_numpy())) * np.tan(decl), -1, 1)
+    w0 = np.degrees(np.arccos(cosw)) / 15
+    b = 2 * np.pi * (n - 81) / 364
+    noon = 12 + (135 - d["lon_c"].to_numpy()) / 15 - (9.87 * np.sin(2 * b) - 7.53 * np.cos(b) - 1.5 * np.sin(b)) / 60
+    d["sunrise"], d["sunset"] = noon - w0, noon + w0
+    g = d.groupby(rk)
+    out = pd.DataFrame(index=g.size().index)
+
+    def rate_gap(mask_hi, mask_lo, col="moving", base=None):
+        x = d if base is None else d[base]
+        hi = x[mask_hi.loc[x.index]].groupby(rk)[col].mean()
+        lo = x[mask_lo.loc[x.index]].groupby(rk)[col].mean()
+        return hi - lo
+
+    out["moon_bright_minus_dark_rate"] = rate_gap(d["illum"] > 0.75, d["illum"] < 0.25)
+    out["spring_minus_neap_rate"] = rate_gap(d["spring"] > 0.7, d["spring"] < 0.3)
+    mv = d["moving"] == 1
+    out["night_bright_minus_dark"] = rate_gap(d["illum"] > 0.75, d["illum"] < 0.25, "night_ratio", mv)
+    dm = d[mv]
+    out["moving_illum_mean"] = dm.groupby(rk)["illum"].mean()
+    out["moving_spring_mean"] = dm.groupby(rk)["spring"].mean()
+    out["dep_rel_sunrise_q50"] = (dm["mv_first_hour"] + 0.5 - dm["sunrise"]).groupby(dm[rk]).median()
+    out["end_rel_sunset_q50"] = (dm["mv_last_hour"] + 0.5 - dm["sunset"]).groupby(dm[rk]).median()
+    # 이동 시간대 중 해가 진 뒤(일몰~일출) 비중: 시계 시각 대신 실제 어둠 기준
+    M = H.loc[H["moving"] == 1, [rk, "part_dt", "hour"]].merge(d[[rk, "part_dt", "sunrise", "sunset"]],
+                                                               on=[rk, "part_dt"], how="left")
+    t = M["hour"] + 0.5
+    M["dark"] = ((t < M["sunrise"]) | (t > M["sunset"])).astype(float)
+    out["dark_fishing_share"] = M.groupby(rk)["dark"].mean()
+    return out
+
+
+def line_bearing_feats(H, D):
+    """v2 직선 투망 방향 일관성 (가설 B): 최장 직선 구간의 축 방위(0~180°)를 2배각 평균 → 결과 벡터 길이"""
+    rk = "rfid_id"
+    L = H.loc[(H["moving"] == 1) & H["ks_straight_bearing"].notna(), [rk, "ks_straight_bearing"]]
+    th = np.radians(L["ks_straight_bearing"].to_numpy() * 2)
+    L = L.assign(c=np.cos(th), s=np.sin(th))
+    g = L.groupby(rk)
+    out = pd.DataFrame({"line_bearing_consistency": np.hypot(g["c"].mean(), g["s"].mean()), "n_lines": g.size()})
+    out.loc[out["n_lines"] < 3, "line_bearing_consistency"] = np.nan
+    n_mv_days = D[D["n_moving_hours"] >= 1].groupby(rk).size()
+    out["straight_runs_per_day"] = out["n_lines"] / n_mv_days.reindex(out.index)
+    return out.drop(columns="n_lines")
 DAY_TYPE_FEATS = ["n_moving_hours", "dist_day_km", "day_range_q95_km", "home_km_max", "drift_share",
                   "fish_share", "transit_share", "sea_stop_share", "mv_first_hour", "mv_span_h",
                   "revisit_cell_ratio", "mv_ks_speed_med", "mv_ks_heading_R", "mv_turn_mean"]
 LOC_COLS = ["lon_c", "lat_c", "home_lon", "home_lat", "home_port_km", "fishing_lon", "fishing_lat"]
 
 
-def build_ship(H, D, cells1k):
+def build_ship(H, D, cells1k, daytype=None):
     rk = "rfid_id"
     lab = H.groupby(rk)["fishing_code"].agg(lambda s: s.mode().iloc[0] if s.notna().any() else None)
     S = pd.DataFrame(index=lab.index)
@@ -342,16 +443,27 @@ def build_ship(H, D, cells1k):
     S = S.join(mm)
 
     # bag-of-days (가설 G): 출어일 유형 군집 비율 + 엔트로피. 라벨 미사용(비지도) → 전체 선박으로 적합
+    #   테스트는 학습에서 적합한 결측 대치·클리핑·스케일·군집 중심을 그대로 사용
     X = Dm[DAY_TYPE_FEATS].astype(float)
-    X = X.fillna(X.median())
-    Z = StandardScaler().fit_transform(X.clip(X.quantile(0.01), X.quantile(0.99), axis=1))
-    km = KMeans(C.N_DAY_TYPES, random_state=C.RANDOM_STATE, n_init=4).fit(Z)
-    bag = pd.crosstab(Dm[rk].to_numpy(), km.labels_, normalize="index")
+    if daytype is None:
+        med = X.median()
+        Xf = X.fillna(med)
+        lo, hi = Xf.quantile(0.01), Xf.quantile(0.99)
+        sc = StandardScaler().fit(Xf.clip(lo, hi, axis=1))
+        km = KMeans(C.N_DAY_TYPES, random_state=C.RANDOM_STATE, n_init=4).fit(sc.transform(Xf.clip(lo, hi, axis=1)))
+        daytype = dict(med=med, lo=lo, hi=hi, scaler=sc, km=km)
+    lab = daytype["km"].predict(daytype["scaler"].transform(
+        X.fillna(daytype["med"]).clip(daytype["lo"], daytype["hi"], axis=1)))
+    bag = pd.crosstab(Dm[rk].to_numpy(), lab, normalize="index")
+    bag = bag.reindex(columns=range(C.N_DAY_TYPES), fill_value=0)
     bag.columns = [f"daytype_{i}_share" for i in bag.columns]
     S = S.join(bag)
     p = S[bag.columns].fillna(0).to_numpy()
     S["day_type_entropy"] = -(p * np.log(p + 1e-9)).sum(axis=1)
     S.loc[S["n_moving_days"] == 0, "day_type_entropy"] = np.nan
+
+    # v2: 상태 전이 구조 / 자연 주기(달·물때·해) / 직선 투망 방향 일관성
+    S = S.join(transition_feats(H)).join(natural_cycle_feats(H, D)).join(line_bearing_feats(H, D))
 
     # 위치 (LOC, shortcut 위험 → Model B 에서만)
     S["lon_c"] = hg["lon_c"].median()
@@ -367,20 +479,25 @@ def build_ship(H, D, cells1k):
 
     S = S.reset_index().rename(columns={"index": rk})
     print(f"ship_features {len(S):,}척 × {S.shape[1]}열")
-    return S
+    return S, daytype
 
 
-def main():
+def main(test=False):
     t = time.time()
-    H = load_hourly()
-    H = add_port_state(H)
+    out = "test_" if test else ""
+    H = load_hourly("test_hourly" if test else "hourly")
+    H = add_port_state(H, pd.read_csv(C.FEAT_DIR / "port_cells.csv") if test else None)
     D, cells1k = build_shipday(H)
-    D.to_parquet(C.FEAT_DIR / "shipday.parquet", index=False)
-    S = build_ship(H, D, cells1k)
-    S.to_parquet(C.FEAT_DIR / "ship_features.parquet", index=False)
-    print(S["fishing_code"].value_counts())
+    D.to_parquet(C.FEAT_DIR / f"{out}shipday.parquet", index=False)
+    S, daytype = build_ship(H, D, cells1k, joblib.load(C.FEAT_DIR / "daytype_model.joblib") if test else None)
+    if not test:
+        joblib.dump(daytype, C.FEAT_DIR / "daytype_model.joblib")
+    S.to_parquet(C.FEAT_DIR / f"{out}ship_features.parquet", index=False)
+    print(S["fishing_code"].value_counts(dropna=False))
     print(f"✅ 완료 {(time.time() - t) / 60:.1f}분")
 
 
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--test", action="store_true", help="테스트셋 집계 (학습 항구 격자·출어일 유형 모델 고정)")
+    main(ap.parse_args().test)
