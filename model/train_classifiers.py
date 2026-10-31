@@ -208,27 +208,28 @@ ENS_MEMBERS = ["lgbm_tuned", "catboost", "tabm", "hier_hyp", "tabpfn"]
 # ─────────────────────────────────────────────
 # macro-F1 클래스 가중 보정 (다른 fold 의 OOF 로만 학습 → 해당 fold 에 적용)
 # ─────────────────────────────────────────────
-def fit_class_weights(P, y, iters=3):
+def fit_class_weights(P, y, iters=3, score=None):
+    score = score or V.macro_f1  # 리더보드 micro-F1 용으로는 accuracy 를 넘김
     w = np.ones(NC)
     grid = np.exp(np.linspace(-1.2, 1.2, 25))
     for _ in range(iters):
         for c in range(NC):
-            best = (V.macro_f1(y, (P * w).argmax(1)), w[c])
+            best = (score(y, (P * w).argmax(1)), w[c])
             for g in grid:
                 w2 = w.copy()
                 w2[c] = g
-                s = V.macro_f1(y, (P * w2).argmax(1))
+                s = score(y, (P * w2).argmax(1))
                 if s > best[0] + 1e-9:
                     best = (s, g)
             w[c] = best[1]
     return w
 
 
-def adjust_lofo(P, y, fold_id):
+def adjust_lofo(P, y, fold_id, score=None):
     out = P.copy()
     for f in np.unique(fold_id):
         o = fold_id != f
-        out[fold_id == f] = P[fold_id == f] * fit_class_weights(P[o], y[o])
+        out[fold_id == f] = P[fold_id == f] * fit_class_weights(P[o], y[o], score=score)
     return out
 
 

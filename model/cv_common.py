@@ -16,7 +16,8 @@ LOC_COLS = ["lon_c", "lat_c", "home_lon", "home_lat", "home_port_km", "fishing_l
 # 자망↔연안복합 가설 피처 (진행1 §6-2, A 재방문·B 직선 투망·C 속도 구조·D 선회·E 하루 리듬·G 이질성·H 계절)
 HYP_PAT = re.compile(r"revisit|return_after|top3_cell|n_cells_200m|cross_day|site_jaccard|straight_max|"
                      r"slow_run|pca_elong|loops|active_block|max_block_gap|longest_streak|daytype|"
-                     r"day_type_entropy|season_|sea_stationary|drift|speed_entropy|n_stays|stay_frac")
+                     r"day_type_entropy|season_|sea_stationary|drift|speed_entropy|n_stays|stay_frac|"
+                     r"stay_gap|stay_line|stay_dur|line_bearing|straight_runs|heading_autocorr|trans_|dwell_")  # v2
 
 
 def set_font():

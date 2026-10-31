@@ -1,0 +1,53 @@
+선박 7,372 / 출어일 399,025 / 선박당 일수 중앙값 46, 최대 181  device=cpu
+
+━━ Pool A: 일 피처 93개 ━━
+  fold 0: val F1 0.5169  (s0:0.474@29ep, 169s)
+  fold 1: val F1 0.4641  (s0:0.511@37ep, 238s)
+  fold 2: val F1 0.4829  (s0:0.526@30ep, 185s)
+  fold 3: val F1 0.4883  (s0:0.499@34ep, 182s)
+  fold 4: val F1 0.4796  (s0:0.524@38ep, 221s)
+  mil                  macro-F1 0.4886  (fold ±0.0173)
+  mil+adj              macro-F1 0.4787  (fold ±0.0144)
+  ensemble(기존)         macro-F1 0.4707  (fold ±0.0198)
+  ensemble(기존)+adj     macro-F1 0.5231  (fold ±0.0161)
+  ensemble+mil         macro-F1 0.5147  (fold ±0.0125)
+  ensemble+mil+adj     macro-F1 0.5047  (fold ±0.0142)
+  catboost+mil         macro-F1 0.5032  (fold ±0.0118)
+  catboost+mil+adj     macro-F1 0.5005  (fold ±0.0160)
+  기간 길이별: {7: 0.4762, 14: 0.4817, 30: 0.4888, 60: 0.4878, '전체': 0.4886}
+
+━━ Pool B: 일 피처 101개 ━━
+  fold 0: val F1 0.5316  (s0:0.499@21ep, 199s)
+  fold 1: val F1 0.4825  (s0:0.527@34ep, 236s)
+  fold 2: val F1 0.5279  (s0:0.540@31ep, 182s)
+  fold 3: val F1 0.4961  (s0:0.506@22ep, 131s)
+  fold 4: val F1 0.5091  (s0:0.552@34ep, 224s)
+  mil                  macro-F1 0.5107  (fold ±0.0186)
+  mil+adj              macro-F1 0.5240  (fold ±0.0164)
+  ensemble(기존)         macro-F1 0.5401  (fold ±0.0159)
+  ensemble(기존)+adj     macro-F1 0.5403  (fold ±0.0242)
+  ensemble+mil         macro-F1 0.5365  (fold ±0.0103)
+  ensemble+mil+adj     macro-F1 0.5387  (fold ±0.0118)
+  catboost+mil         macro-F1 0.5283  (fold ±0.0100)
+  catboost+mil+adj     macro-F1 0.5448  (fold ±0.0153)
+  기간 길이별: {7: 0.4971, 14: 0.4964, 30: 0.5113, 60: 0.5091, '전체': 0.5107}
+
+attention (1=균등): 이동일 1.242 / 비이동일 0.075
+
+pool            model  macro_f1  f1_fold_std  f1_연안복합  f1_자망  f1_통발  f1_채낚기연승낚시  gill_vs_coast_f1
+   A              mil    0.4886       0.0173   0.6339 0.3860 0.2878      0.6465            0.5965
+   A          mil+adj    0.4787       0.0144   0.6142 0.4156 0.2712      0.6138            0.5905
+   A     ensemble(기존)    0.4707       0.0198   0.6551 0.4502 0.2688      0.5088            0.6216
+   A ensemble(기존)+adj    0.5231       0.0161   0.6664 0.4437 0.2764      0.7059            0.6223
+   A     ensemble+mil    0.5147       0.0125   0.6589 0.4240 0.2949      0.6809            0.6132
+   A ensemble+mil+adj    0.5047       0.0142   0.6376 0.4459 0.2910      0.6445            0.6142
+   A     catboost+mil    0.5032       0.0118   0.6633 0.4099 0.2908      0.6488            0.6122
+   A catboost+mil+adj    0.5005       0.0160   0.6279 0.4309 0.2898      0.6533            0.6061
+   B              mil    0.5107       0.0186   0.6317 0.4394 0.3319      0.6396            0.6177
+   B          mil+adj    0.5240       0.0164   0.6365 0.4495 0.3268      0.6831            0.6177
+   B     ensemble(기존)    0.5401       0.0159   0.6664 0.4918 0.3447      0.6576            0.6534
+   B ensemble(기존)+adj    0.5403       0.0242   0.6670 0.4986 0.3366      0.6590            0.6538
+   B     ensemble+mil    0.5365       0.0103   0.6666 0.4746 0.3453      0.6594            0.6450
+   B ensemble+mil+adj    0.5387       0.0118   0.6701 0.4610 0.3371      0.6865            0.6392
+   B     catboost+mil    0.5283       0.0100   0.6750 0.4675 0.3258      0.6450            0.6449
+   B catboost+mil+adj    0.5448       0.0153   0.6759 0.4800 0.3281      0.6954            0.6451

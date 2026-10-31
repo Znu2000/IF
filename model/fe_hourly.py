@@ -17,6 +17,7 @@
 실행:  python fe_hourly.py                 (전체 6개월, 결과 features/hourly_MM.parquet)
        python fe_hourly.py --max-chunks 1  (동작 확인용)
        python fe_hourly.py --months 1 2    (특정 월만)
+       python fe_hourly.py --src "<테스트셋 폴더>" --prefix test_hourly   (테스트셋, fishing_code 없음)
 """
 import argparse
 import re
@@ -106,8 +107,10 @@ def spectral(sig):
 
 
 def stay_points(p, r=C.STAY_R_M, min_pts=C.STAY_MIN_PTS):
-    """체류점(Li et al. 2008 방식): 기준점에서 반경 r 안에 min_pts 이상 연속 → 체류 1회"""
+    """체류점(Li et al. 2008 방식): 기준점에서 반경 r 안에 min_pts 이상 연속 → 체류 1회
+    반환: 체류 횟수, 체류에 속한 점 수, 체류 중심 좌표 목록, 체류별 점 수"""
     n, i, n_stay, in_stay = len(p), 0, 0, 0
+    centers, lens = [], []
     while i < n - 1:
         d = _norm(p[i + 1 :] - p[i])
         out = np.flatnonzero(d > r)
@@ -115,10 +118,12 @@ def stay_points(p, r=C.STAY_R_M, min_pts=C.STAY_MIN_PTS):
         if j - i >= min_pts:
             n_stay += 1
             in_stay += j - i
+            centers.append(p[i:j].mean(0))
+            lens.append(j - i)
             i = j
         else:
             i += 1
-    return n_stay, in_stay
+    return n_stay, in_stay, centers, lens
 
 
 def longest_true_run(mask):
@@ -158,8 +163,10 @@ FEAT_COLS = [
     "ks_speed_mean", "ks_speed_med", "ks_speed_p90", "ks_frac_stat", "ks_frac_drift",
     "ks_frac_fish", "ks_frac_transit", "ks_heading_R", "ks_turn_med", "ks_straight_max_m",
     "slow_run_max_min", "speed_entropy",
-    # 체류점
-    "n_stays", "stay_frac",
+    # 체류점 + 체류 지점 배열 (v2: 통발 어구 기하 ─ 부표를 따라 줄지어 멈추는 패턴)
+    "n_stays", "stay_frac", "stay_gap_med_m", "stay_gap_cv", "stay_line_elong", "stay_dur_med_min",
+    # v2: 방향 지속성 / 표류→고속 재배치 사이클 (가설 D) / 최장 직선 구간 방위 (선박 단위 직선 방향 일관성 재료)
+    "heading_autocorr", "drift_cycles", "ks_straight_bearing",
     # 스펙트럼 (진우)
     "spec_entropy", "lowfreq_ratio",
     # 정박
@@ -263,9 +270,13 @@ def row_features(parts):
     pad = np.full((nb, mx, 2), np.nan)
     pos = np.arange(n) - np.searchsorted(bid, bid)  # 구간 내 순번
     pad[bid, pos] = CP
-    B = np.nanmedian(pad, axis=1)
-    dd = np.hypot(pad[..., 0] - B[:, None, 0], pad[..., 1] - B[:, None, 1])
-    f["bin_dispersion_m"] = float(np.nanmedian(dd, axis=1).mean())
+    # 구간별 중앙값: NaN 은 정렬 시 뒤로 가므로 구간 점 수(cnt)로 가운데 위치를 바로 집음 (np.nanmedian 보다 빠름)
+    cnt = np.bincount(bid)
+    ar, lo, hi = np.arange(nb), (cnt - 1) // 2, cnt // 2
+    s = np.sort(pad, axis=1)
+    B = (s[ar, lo] + s[ar, hi]) / 2
+    dd = np.sort(np.hypot(pad[..., 0] - B[:, None, 0], pad[..., 1] - B[:, None, 1]), axis=1)
+    f["bin_dispersion_m"] = float(((dd[ar, lo] + dd[ar, hi]) / 2).mean())
     B, nbs = remove_spikes(B, passes=1)
     f["n_bin_spikes"] = nbs
     bl, bt = B[:, 0] / kx + lon0, B[:, 1] / ky + lat0
@@ -324,7 +335,7 @@ def row_features(parts):
     # 지터 강건 k-step (민성): k점 간격 거리, 균등간격 가정 → dt = k·60/n 분
     k = C.K_STEP
     dt_h = k / max(n, 1)
-    ksp, kh, kd = [], [], []
+    ksp, kh, kd, cycles = [], [], [], 0
     for q in Q:
         if len(q) > k:
             dk = _norm(q[k:] - q[:-k])
@@ -335,6 +346,13 @@ def row_features(parts):
             m = (dl > 15) & (dl <= C.JUMP_PT_M)
             kh.append(np.arctan2(ds[m, 1], ds[m, 0]))
             kd.append(dl[m])
+            # 표류(0.3~2kn) 직후 고속(>4kn) 재배치 + 120° 넘게 방향 전환 = 사이클 1회 (낚시형 톱니 패턴)
+            if len(dl) >= 2:
+                vs = dl / 1852.0 / dt_h
+                hs = np.arctan2(ds[:, 1], ds[:, 0])
+                turn = np.degrees(np.abs((hs[1:] - hs[:-1] + np.pi) % (2 * np.pi) - np.pi))
+                cycles += int(((vs[:-1] >= 0.3) & (vs[:-1] < 2) & (vs[1:] > 4) & (dl[:-1] > 15) & (turn > 120)).sum())
+    f["drift_cycles"] = cycles
     ksp = np.concatenate(ksp) if ksp else np.empty(0)
     if ksp.size:
         f["ks_speed_mean"], f["ks_speed_med"] = float(ksp.mean()), float(np.median(ksp))
@@ -349,24 +367,45 @@ def row_features(parts):
     if khs:
         allh = np.concatenate(khs)
         f["ks_heading_R"] = float(np.hypot(np.cos(allh).mean(), np.sin(allh).mean()))
-        kt, best = [], 0.0
+        kt, best, bseg, ac = [], 0.0, None, []
         for h_, d_ in zip(kh, kd):
+            if h_.size >= 1 and d_[0] > best:
+                best, bseg = float(d_[0]), h_[:1]
             if h_.size >= 2:
                 t = np.degrees(np.abs((np.diff(h_) + np.pi) % (2 * np.pi) - np.pi))
                 kt.append(t)
-                cur = d_[0]
-                for s_, t_ in zip(d_[1:], t):  # 가설 B: 회전 15° 미만으로 이어진 최장 직선
-                    cur = cur + s_ if t_ < C.STRAIGHT_TURN_DEG else s_
-                    best = max(best, cur)
-            elif h_.size == 1:
-                best = max(best, float(d_[0]))
+                cur, cs = d_[0], 0
+                for jj in range(1, len(d_)):  # 가설 B: 회전 15° 미만으로 이어진 최장 직선
+                    if t[jj - 1] < C.STRAIGHT_TURN_DEG:
+                        cur += d_[jj]
+                    else:
+                        cur, cs = d_[jj], jj
+                    if cur > best:
+                        best, bseg = cur, h_[cs:jj + 1]
+            if h_.size >= 3:  # 2스텝 떨어진 진행 방향의 유사도 (1=계속 같은 방향)
+                ac.append(np.cos(h_[2:] - h_[:-2]))
         f["ks_straight_max_m"] = best
+        if bseg is not None and best >= 300:  # 직선 구간의 축 방위(0~180°): 방향 일관성 계산용
+            f["ks_straight_bearing"] = float(np.degrees(np.arctan2(np.sin(2 * bseg).mean(),
+                                                                   np.cos(2 * bseg).mean())) / 2 % 180)
+        if ac:
+            f["heading_autocorr"] = float(np.concatenate(ac).mean())
         if kt:
             f["ks_turn_med"] = float(np.median(np.concatenate(kt)))
 
     # 체류점
-    ns, ins = stay_points(CP)
+    ns, ins, centers, lens = stay_points(CP)
     f["n_stays"], f["stay_frac"] = ns, ins / n
+    if lens:
+        f["stay_dur_med_min"] = float(np.median(lens)) * 60.0 / n
+    if len(centers) >= 2:  # 연속 체류 지점 사이 간격: 통발은 부표 간격으로 규칙적
+        sc = np.array(centers)
+        gaps = _norm(np.diff(sc, axis=0))
+        f["stay_gap_med_m"] = float(np.median(gaps))
+        f["stay_gap_cv"] = float(gaps.std() / max(gaps.mean(), 1.0))
+        if len(sc) >= 3 and np.ptp(sc, axis=0).max() > 1:  # 체류 지점들이 일렬로 놓였나
+            ev = np.linalg.eigvalsh(np.cov(sc.T))
+            f["stay_line_elong"] = float(np.log1p(ev[-1] / max(ev[0], 1.0)))
     return f
 
 
@@ -408,12 +447,15 @@ def clean_keys(raw):
 
 def run_file(path, ex, max_chunks=None):
     t0 = time.time()
-    reader = pd.read_csv(path, chunksize=C.CHUNK_SIZE, dtype=str, encoding="utf-8-sig",
-                         usecols=["part_dt", "rfid_id", "rfid_time", "geom", "fishing_code"])
+    head = pd.read_csv(path, nrows=0, encoding="utf-8-sig").columns
+    cols = ["part_dt", "rfid_id", "rfid_time", "geom"] + (["fishing_code"] if "fishing_code" in head else [])
+    reader = pd.read_csv(path, chunksize=C.CHUNK_SIZE, dtype=str, encoding="utf-8-sig", usecols=cols)
     pending, results, broken, dups = {}, {}, 0, 0
     for ci, raw in enumerate(reader):
         if max_chunks is not None and ci >= max_chunks:
             break
+        if "fishing_code" not in raw:  # 테스트셋: 정답 없음
+            raw["fishing_code"] = None
         key, geoms, b, d = clean_keys(raw)
         broken, dups = broken + b, dups + d
         # 청크를 작업자 수만큼 쪼개서 제출
@@ -440,15 +482,16 @@ def run_file(path, ex, max_chunks=None):
     return df, broken, dups, time.time() - t0
 
 
-def main(max_chunks=None, months=None):
-    files = C.vpass_files()
-    print(f"N_JOBS={C.N_JOBS}, CHUNK={C.CHUNK_SIZE:,}, 파일 {len(files)}개")
+def main(max_chunks=None, months=None, src=None, prefix="hourly"):
+    from pathlib import Path
+    files = sorted(Path(src).glob(C.VPASS_GLOB)) if src else C.vpass_files()
+    print(f"N_JOBS={C.N_JOBS}, CHUNK={C.CHUNK_SIZE:,}, 파일 {len(files)}개 → {prefix}_MM.parquet")
     with ProcessPoolExecutor(C.N_JOBS) as ex:
         for f in files:
             mm = int(re.search(r"(\d+)월", f.name).group(1))
             if months and mm not in months:
                 continue
-            out = C.FEAT_DIR / f"hourly_{mm:02d}.parquet"
+            out = C.FEAT_DIR / f"{prefix}_{mm:02d}.parquet"
             print(f"\n▶ {f.name} → {out.name}")
             df, broken, dups, sec = run_file(f, ex, max_chunks)
             df["fishing_code"] = df["fishing_code"].astype("category")
@@ -461,5 +504,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--max-chunks", type=int, default=None)
     ap.add_argument("--months", type=int, nargs="*", default=None)
+    ap.add_argument("--src", default=None, help="입력 폴더 (예: 테스트셋 폴더). 기본 = 학습 데이터")
+    ap.add_argument("--prefix", default="hourly", help="출력 파일 접두사 (테스트: test_hourly)")
     a = ap.parse_args()
-    main(a.max_chunks, a.months)
+    main(a.max_chunks, a.months, a.src, a.prefix)

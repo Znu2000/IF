@@ -1,0 +1,146 @@
+[13:56:22] 시간 피처 추출 완료 → 집계
+hourly 3,887,065행 / 선박 7,372척 / 파일 6개
+공용 항구 격자: 875칸
+상태 비율: {'PORT': 0.541, 'DRIFT': 0.156, 'SEA_STOP': 0.129, 'FISH': 0.117, 'TRANSIT': 0.057}
+이동 시간대 비율: 0.318
+shipday 399,025행 × 110열
+ship_features 7,372척 × 415열
+fishing_code
+연안복합       3650
+자망         2520
+통발         1044
+채낚기연승낚시     158
+Name: count, dtype: int64
+✅ 완료 2.0분
+[13:58:26] 랭킹
+선박 7,372척, 클래스 분포 [3650 2520 1044  158]
+  [A] fold 0: 후보 406 → 비중복 307  (120s)
+  [A] fold 1: 후보 406 → 비중복 310  (118s)
+  [A] fold 2: 후보 406 → 비중복 311  (120s)
+  [A] fold 3: 후보 406 → 비중복 309  (143s)
+  [A] fold 4: 후보 406 → 비중복 308  (124s)
+  [A] k* = 307  (best k=9999, F1 0.4649±0.0068)
+  [B] fold 0: 후보 413 → 비중복 311  (121s)
+  [B] fold 1: 후보 413 → 비중복 314  (122s)
+  [B] fold 2: 후보 413 → 비중복 313  (117s)
+  [B] fold 3: 후보 413 → 비중복 314  (126s)
+  [B] fold 4: 후보 413 → 비중복 310  (118s)
+  [B] k* = 50  (best k=60, F1 0.5324±0.0075)
+✅ 랭킹 완료
+[14:19:06] 모델 (A, B)
+
+━━ Pool A  (k=307, 가설 피처 후보 206개) ━━
+  base        macro-F1 0.3941 (fold 0.3959±0.0261)     88s
+  rf          macro-F1 0.4255 (fold 0.4287±0.0283)    122s
+  lgbm_base   macro-F1 0.4602 (fold 0.4613±0.0205)     78s
+  catboost    macro-F1 0.4894 (fold 0.4887±0.0207)    896s
+  hier_hyp    macro-F1 0.4643 (fold 0.4653±0.0193)    106s
+  ensemble    macro-F1 0.5079 (fold 0.5069±0.0149)
+  ensemble+adj macro-F1 0.5164 (fold 0.5152±0.0205)
+
+━━ Pool B  (k=50, 가설 피처 후보 206개) ━━
+  base        macro-F1 0.3936 (fold 0.3929±0.0167)      3s
+  rf          macro-F1 0.5046 (fold 0.5033±0.0207)     54s
+  lgbm_base   macro-F1 0.5265 (fold 0.5258±0.0162)     23s
+  catboost    macro-F1 0.5283 (fold 0.5274±0.0297)    154s
+  hier_hyp    macro-F1 0.5265 (fold 0.5258±0.0158)     29s
+  ensemble    macro-F1 0.5331 (fold 0.5325±0.0199)
+  ensemble+adj macro-F1 0.5296 (fold 0.5279±0.0250)
+
+pool        model  macro_f1  f1_fold_std  f1_연안복합  f1_자망  f1_통발  f1_채낚기연승낚시  gill_vs_coast_f1
+   A         base    0.3941       0.0261   0.5092 0.4031 0.2902      0.3737            0.5775
+   A           rf    0.4255       0.0283   0.6817 0.3734 0.1492      0.4976            0.5873
+   A    lgbm_base    0.4602       0.0205   0.6472 0.4460 0.2356      0.5119            0.6130
+   A     catboost    0.4894       0.0207   0.6661 0.4189 0.2366      0.6361            0.6088
+   A     hier_hyp    0.4643       0.0193   0.6551 0.4422 0.2447      0.5152            0.6132
+   A     ensemble    0.5079       0.0149   0.6712 0.4427 0.2454      0.6724            0.6202
+   A ensemble+adj    0.5164       0.0205   0.6618 0.4321 0.2808      0.6908            0.6200
+   B         base    0.3936       0.0167   0.5057 0.3777 0.3083      0.3825            0.5797
+   B           rf    0.5046       0.0207   0.6991 0.4663 0.2185      0.6344            0.6397
+   B    lgbm_base    0.5265       0.0162   0.6587 0.4962 0.3114      0.6398            0.6404
+   B     catboost    0.5283       0.0297   0.6805 0.4711 0.3147      0.6467            0.6426
+   B     hier_hyp    0.5265       0.0158   0.6600 0.4920 0.3120      0.6418            0.6431
+   B     ensemble    0.5331       0.0199   0.6741 0.4881 0.3145      0.6556            0.6485
+   B ensemble+adj    0.5296       0.0250   0.6545 0.4963 0.3288      0.6387            0.6489
+[14:45:13] v1 비교
+version                          v1      v2    diff
+pool model         adjusted                        
+A    base          False     0.3830  0.3941  0.0111
+                   True      0.4426  0.4560  0.0133
+     catboost      False     0.4973  0.4894 -0.0079
+                   True      0.5187  0.5048 -0.0139
+     core_ensemble False     0.4667  0.4695  0.0028
+                   True      0.5151  0.5124 -0.0027
+     hier_hyp      False     0.4620  0.4643  0.0023
+                   True      0.5048  0.5027 -0.0021
+     lgbm_base     False     0.4596  0.4602  0.0006
+                   True      0.4976  0.5018  0.0042
+     rf            False     0.4230  0.4255  0.0025
+                   True      0.4882  0.4772 -0.0110
+B    base          False     0.3935  0.3936  0.0000
+                   True      0.4452  0.4511  0.0060
+     catboost      False     0.5309  0.5283 -0.0027
+                   True      0.5353  0.5374  0.0021
+     core_ensemble False     0.5441  0.5288 -0.0153
+                   True      0.5461  0.5357 -0.0104
+     hier_hyp      False     0.5336  0.5265 -0.0071
+                   True      0.5270  0.5332  0.0063
+     lgbm_base     False     0.5375  0.5265 -0.0110
+                   True      0.5299  0.5378  0.0078
+     rf            False     0.5111  0.5046 -0.0065
+                   True      0.5334  0.5314 -0.0019
+
+통발 F1
+ version                          v1      v2    diff
+pool model         adjusted                        
+A    base          False     0.2754  0.2902  0.0147
+                   True      0.2352  0.2438  0.0086
+     catboost      False     0.2344  0.2366  0.0022
+                   True      0.2900  0.2849 -0.0052
+     core_ensemble False     0.2516  0.2443 -0.0073
+                   True      0.2714  0.2894  0.0180
+     hier_hyp      False     0.2527  0.2447 -0.0079
+                   True      0.3057  0.2960 -0.0097
+     lgbm_base     False     0.2497  0.2356 -0.0141
+                   True      0.2837  0.2929  0.0092
+     rf            False     0.1384  0.1492  0.0108
+                   True      0.2888  0.2875 -0.0014
+B    base          False     0.2954  0.3083  0.0129
+                   True      0.2535  0.2666  0.0131
+     catboost      False     0.3133  0.3147  0.0014
+                   True      0.3375  0.3417  0.0042
+     core_ensemble False     0.3320  0.3087 -0.0233
+                   True      0.3482  0.3365 -0.0116
+     hier_hyp      False     0.3305  0.3120 -0.0185
+                   True      0.3311  0.3336  0.0026
+     lgbm_base     False     0.3335  0.3114 -0.0221
+                   True      0.3338  0.3301 -0.0037
+     rf            False     0.2290  0.2185 -0.0105
+                   True      0.3595  0.3394 -0.0201
+
+Pool A (k*=307): 신규 피처 59개 중 상위 307 안 50개
+                feature category  final_rank  topk_freq
+   mv_drift_cycles_mean 방향·회전(D)           5        1.0
+       trans_fish_drift 시간 사용·항차          21        1.0
+fh_heading_autocorr_q90 방향·회전(D)          28        1.0
+     mv_stay_gap_cv_std      체류점          31        1.0
+ mv_stay_line_elong_std      체류점          33        1.0
+ fh_stay_line_elong_q90      체류점          34        1.0
+     trans_transit_stop 시간 사용·항차          44        1.0
+    trans_transit_drift 시간 사용·항차          50        1.0
+           dwell_port_h 시간 사용·항차          51        1.0
+        trans_stop_port 시간 사용·항차          53        1.0
+
+Pool B (k*=50): 신규 피처 59개 중 상위 50 안 9개
+                   feature category  final_rank  topk_freq
+    mv_stay_line_elong_std      체류점           6        0.8
+           trans_fish_fish 시간 사용·항차           8        0.8
+         trans_drift_drift 시간 사용·항차          12        0.6
+  mv_heading_autocorr_mean 방향·회전(D)          29        0.4
+mv_heading_autocorr_median 방향·회전(D)          34        0.4
+        trans_transit_stop 시간 사용·항차          41        0.4
+      mv_drift_cycles_mean 방향·회전(D)          44        0.4
+    mv_stay_gap_med_m_mean      체류점          45        0.4
+     fh_stay_gap_med_m_q90      체류점          46        0.4
+          trans_fish_drift 시간 사용·항차          57        0.4
+[14:46:46] ✅ v2 완료

@@ -1,0 +1,2 @@
+﻿pool,model,macro_f1,f1_fold_mean,f1_fold_std,acc,bal_acc,f1_연안복합,f1_자망,f1_통발,f1_채낚기연승낚시,gill_vs_coast_f1
+B,catboost,0.5309,0.5302,0.0133,0.5776,0.5564,0.6892,0.4722,0.3133,0.6489,0.6497
