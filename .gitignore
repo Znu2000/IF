@@ -29,3 +29,5 @@ Thumbs.db
 model/results/anom_labels.csv
 model/results/test_pred_all.csv
 model/results/submission*.xlsx
+model/results/cnnmil_test.csv
+model/results/step1_test_*.npy

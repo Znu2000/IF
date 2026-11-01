@@ -1,0 +1,18 @@
+선박-일 399,025 × 24시간 × 30채널  device=cuda  (0.1분)
+  fold 0 seed 0: 23 epoch, 조기종료 정확도 0.5518  (0.5분)
+  fold 0 seed 1: 7 epoch, 조기종료 정확도 0.5110  (0.6분)
+  fold 0 seed 2: 14 epoch, 조기종료 정확도 0.5518  (0.9분)
+  fold 1 seed 0: 10 epoch, 조기종료 정확도 0.5280  (1.0분)
+  fold 1 seed 1: 17 epoch, 조기종료 정확도 0.5569  (1.3분)
+  fold 1 seed 2: 22 epoch, 조기종료 정확도 0.5620  (1.7분)
+  fold 2 seed 0: 9 epoch, 조기종료 정확도 0.5348  (1.8분)
+  fold 2 seed 1: 12 epoch, 조기종료 정확도 0.5620  (2.0분)
+  fold 2 seed 2: 20 epoch, 조기종료 정확도 0.5722  (2.4분)
+  fold 3 seed 0: 11 epoch, 조기종료 정확도 0.5501  (2.6분)
+  fold 3 seed 1: 19 epoch, 조기종료 정확도 0.5993  (2.9분)
+  fold 3 seed 2: 15 epoch, 조기종료 정확도 0.5569  (3.1분)
+  fold 4 seed 0: 10 epoch, 조기종료 정확도 0.5501  (3.3분)
+  fold 4 seed 1: 17 epoch, 조기종료 정확도 0.5857  (3.6분)
+  fold 4 seed 2: 15 epoch, 조기종료 정확도 0.5586  (3.8분)
+OOF micro-F1 0.5408 / macro-F1 0.4353
+✅ 완료 4.3분 → oof_*_cnnmil.npy, cnnmil_test.csv
