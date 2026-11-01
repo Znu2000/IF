@@ -1,0 +1,96 @@
+{
+ "micro_f1": 0.5408301682040152,
+ "macro_f1": 0.435347076500076,
+ "log": [
+  {
+   "fold": 0,
+   "seed": 0,
+   "epochs": 23,
+   "es_acc": 0.5518
+  },
+  {
+   "fold": 0,
+   "seed": 1,
+   "epochs": 7,
+   "es_acc": 0.511
+  },
+  {
+   "fold": 0,
+   "seed": 2,
+   "epochs": 14,
+   "es_acc": 0.5518
+  },
+  {
+   "fold": 1,
+   "seed": 0,
+   "epochs": 10,
+   "es_acc": 0.528
+  },
+  {
+   "fold": 1,
+   "seed": 1,
+   "epochs": 17,
+   "es_acc": 0.5569
+  },
+  {
+   "fold": 1,
+   "seed": 2,
+   "epochs": 22,
+   "es_acc": 0.562
+  },
+  {
+   "fold": 2,
+   "seed": 0,
+   "epochs": 9,
+   "es_acc": 0.5348
+  },
+  {
+   "fold": 2,
+   "seed": 1,
+   "epochs": 12,
+   "es_acc": 0.562
+  },
+  {
+   "fold": 2,
+   "seed": 2,
+   "epochs": 20,
+   "es_acc": 0.5722
+  },
+  {
+   "fold": 3,
+   "seed": 0,
+   "epochs": 11,
+   "es_acc": 0.5501
+  },
+  {
+   "fold": 3,
+   "seed": 1,
+   "epochs": 19,
+   "es_acc": 0.5993
+  },
+  {
+   "fold": 3,
+   "seed": 2,
+   "epochs": 15,
+   "es_acc": 0.5569
+  },
+  {
+   "fold": 4,
+   "seed": 0,
+   "epochs": 10,
+   "es_acc": 0.5501
+  },
+  {
+   "fold": 4,
+   "seed": 1,
+   "epochs": 17,
+   "es_acc": 0.5857
+  },
+  {
+   "fold": 4,
+   "seed": 2,
+   "epochs": 15,
+   "es_acc": 0.5586
+  }
+ ]
+}

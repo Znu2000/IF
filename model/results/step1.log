@@ -1,0 +1,31 @@
+테스트 중 학습에도 있는 선박 6,842척 / 연도 차이 피처 2개: ['mv_lowfreq_ratio_mean', 'mv_lowfreq_ratio_median']
+  [base] fold 0 done (5.1분)
+  [base] fold 1 done (6.1분)
+  [base] fold 2 done (7.3분)
+  [base] fold 3 done (8.2분)
+  [base] fold 4 done (9.4분)
+{'config': 'base', 'cv': 0.5678, 'cv_adj': 0.5856, 'cv_macro': 0.5288, 'cross_unseen': 0.5767, 'cross_unseen_adj': 0.588, 'cross_seen': 0.6418, 'cross_seen_adj': 0.6447, 'weights': '[1.822, 1.35, 0.905, 0.333]'}
+  [prior] fold 0 done (11.3분)
+  [prior] fold 1 done (12.5분)
+  [prior] fold 2 done (13.8분)
+  [prior] fold 3 done (15.0분)
+  [prior] fold 4 done (16.3분)
+{'config': 'prior', 'cv': 0.5861, 'cv_adj': 0.6013, 'cv_macro': 0.5511, 'cross_unseen': 0.5908, 'cross_unseen_adj': 0.606, 'cross_seen': 0.6692, 'cross_seen_adj': 0.6653, 'weights': '[1.822, 1.105, 0.819, 0.368]'}
+  [prior_now] fold 0 done (18.3분)
+  [prior_now] fold 1 done (19.6분)
+  [prior_now] fold 2 done (20.9분)
+  [prior_now] fold 3 done (22.2분)
+  [prior_now] fold 4 done (23.5분)
+{'config': 'prior_now', 'cv': 0.5981, 'cv_adj': 0.5958, 'cv_macro': 0.5334, 'cross_unseen': 0.602, 'cross_unseen_adj': 0.6048, 'cross_seen': 0.669, 'cross_seen_adj': 0.6678, 'weights': '[1.105, 1.0, 1.0, 1.0]'}
+  [prior_now_noshift] fold 0 done (25.4분)
+  [prior_now_noshift] fold 1 done (26.7분)
+  [prior_now_noshift] fold 2 done (28.0분)
+  [prior_now_noshift] fold 3 done (29.4분)
+  [prior_now_noshift] fold 4 done (30.7분)
+{'config': 'prior_now_noshift', 'cv': 0.5997, 'cv_adj': 0.5952, 'cv_macro': 0.5349, 'cross_unseen': 0.6036, 'cross_unseen_adj': 0.6033, 'cross_seen': 0.669, 'cross_seen_adj': 0.6706, 'weights': '[1.105, 1.0, 1.221, 1.0]'}
+           config     cv  cv_adj  cv_macro  cross_unseen  cross_unseen_adj  cross_seen  cross_seen_adj                      weights
+             base 0.5678  0.5856    0.5288        0.5767            0.5880      0.6418          0.6447  [1.822, 1.35, 0.905, 0.333]
+            prior 0.5861  0.6013    0.5511        0.5908            0.6060      0.6692          0.6653 [1.822, 1.105, 0.819, 0.368]
+        prior_now 0.5981  0.5958    0.5334        0.6020            0.6048      0.6690          0.6678       [1.105, 1.0, 1.0, 1.0]
+prior_now_noshift 0.5997  0.5952    0.5349        0.6036            0.6033      0.6690          0.6706     [1.105, 1.0, 1.221, 1.0]
+✅ 완료 31.4분
