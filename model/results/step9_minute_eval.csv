@@ -1,0 +1,14 @@
+﻿detector,labels,n,hit1h,hit3h,hit6h,rank_pct_median,vessel_auc,vessel_auc_activity_matched
+minute,all,38.0,0.0,0.0,0.0263,0.0,0.607,0.6145
+minute,sea,21.0,0.0,0.0,0.0476,0.0,,
+minute,port,17.0,0.0,0.0,0.0,0.0,,
+minute +분 보정,all,38.0,0.0,0.0,0.0263,0.0,0.607,0.6145
+minute +분 보정,sea,21.0,0.0,0.0,0.0476,0.0,,
+minute +분 보정,port,17.0,0.0,0.0,0.0,0.0,,
+minute_drift,all,38.0,0.0,0.0,0.0,0.0,0.6249,0.656
+minute_drift,sea,21.0,0.0,0.0,0.0,0.0,,
+minute_drift,port,17.0,0.0,0.0,0.0,0.0,,
+minute_drift +분 보정,all,38.0,0.0,0.0,0.0,0.0,0.6249,0.656
+minute_drift +분 보정,sea,21.0,0.0,0.0,0.0,0.0,,
+minute_drift +분 보정,port,17.0,0.0,0.0,0.0,0.0,,
+무작위 바다 시각,all,,0.0095,0.0153,0.0203,,,

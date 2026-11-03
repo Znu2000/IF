@@ -1,0 +1,5 @@
+﻿detector,hit6_all,hit6_sea,hit6_port,time_score_mean,vessel_auc
+onset,0.0789,0.0952,0.0588,0.0658,0.78
+onset_tow,0.0263,0.0,0.0588,0.0263,0.7737
+onset_tow_rare,0.0263,0.0,0.0588,0.0263,0.7766
+stop_rare,0.0,0.0,0.0,0.0,0.7934
