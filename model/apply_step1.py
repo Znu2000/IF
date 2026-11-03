@@ -3,7 +3,8 @@
   입력 : results/step1_test_{config}.npy, results/step1_results.csv (클래스 가중 weights)
   출력 : results/test_pred_all.csv, results/submission.xlsx 의 테스트A 시트만 교체 (테스트B 이상탐지는 그대로)
          기존 제출 파일은 results/submission_before_{config}.xlsx 로 백업
-실행: python apply_step1.py [--config prior_now_noshift]
+실행: python apply_step1.py [--config prior_now_noshift] [--base submission_combo_blank.xlsx --out submission_final.xlsx]
+      --base : 테스트B 시트를 가져올 파일 (기본 submission.xlsx), --out : 저장 이름 (기본 = base 덮어쓰기)
 """
 import argparse
 import json
@@ -35,9 +36,11 @@ def main(a):
         out[f"p_{c}"] = P[:, i]
     out.round(4).to_csv(C.RESULT_DIR / "test_pred_all.csv", index=False, encoding="utf-8-sig")
 
-    dst = C.RESULT_DIR / "submission.xlsx"
-    shutil.copy(dst, C.RESULT_DIR / f"submission_before_{a.config}.xlsx")
-    wb = openpyxl.load_workbook(dst)
+    src = C.RESULT_DIR / a.base
+    dst = C.RESULT_DIR / (a.out or a.base)
+    if dst.exists():
+        shutil.copy(dst, C.RESULT_DIR / f"{dst.stem}_before_{a.config}.xlsx")
+    wb = openpyxl.load_workbook(src)
     wa = wb.worksheets[0]
     look = out.set_index("rfid_id")
     prior = pd.Series(y).map(dict(enumerate(C.CLASSES))).value_counts(normalize=True)
@@ -62,4 +65,6 @@ def main(a):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="prior_now_noshift")
+    ap.add_argument("--base", default="submission.xlsx")
+    ap.add_argument("--out", default=None)
     main(ap.parse_args())

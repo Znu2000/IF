@@ -1,0 +1,5 @@
+epoch 0: loss 0.1164  (0.8분)
+epoch 1: loss 0.0476  (1.1분)
+epoch 2: loss 0.0376  (1.4분)
+✅ anom_ae.parquet  (2.4분)
+✅ anom_ae_test.parquet  (3.5분)

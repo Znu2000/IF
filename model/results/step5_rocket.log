@@ -1,0 +1,27 @@
+기준 r4_rp: cv 0.6044, cross_seen 0.6709
+  [mini/daily] fold 0: acc 0.5668 (alpha 3.16e+03, 3.5분)
+  [mini/daily] fold 1: acc 0.5410 (alpha 1e+04, 6.5분)
+  [mini/daily] fold 2: acc 0.5339 (alpha 1e+04, 9.7분)
+  [mini/daily] fold 3: acc 0.5393 (alpha 1e+04, 12.9분)
+  [mini/daily] fold 4: acc 0.5461 (alpha 1e+04, 16.6분)
+{'model': 'mini/daily 단독', 'cv': 0.5454422137818774, 'cv_macro': 0.44498208756074303, 'cross_seen': 0.5524700380005846}
+  [mini/diurnal] fold 0: acc 0.5369 (alpha 1e+04, 17.7분)
+  [mini/diurnal] fold 1: acc 0.5275 (alpha 1e+04, 18.9분)
+  [mini/diurnal] fold 2: acc 0.5041 (alpha 1e+04, 20.1분)
+  [mini/diurnal] fold 3: acc 0.5183 (alpha 1e+04, 21.3분)
+  [mini/diurnal] fold 4: acc 0.5190 (alpha 1e+04, 22.6분)
+{'model': 'mini/diurnal 단독', 'cv': 0.5211611502984265, 'cv_macro': 0.40573154749809504, 'cross_seen': 0.5390236772873429}
+{'config': 'r5_base', 'cv': 0.6087, 'cv_adj': 0.6053, 'cv_macro': 0.55, 'cross_unseen': nan, 'cross_seen': 0.6694, 'cross_seen_adj': 0.666}
+{'config': 'r5_mini_daily', 'cv': 0.6123, 'cv_adj': 0.6106, 'cv_macro': 0.5555, 'cross_unseen': nan, 'cross_seen': 0.6726, 'cross_seen_adj': 0.6681}
+{'config': 'r5_mini_diurnal', 'cv': 0.6069, 'cv_adj': 0.6027, 'cv_macro': 0.5478, 'cross_unseen': nan, 'cross_seen': 0.6709, 'cross_seen_adj': 0.6698}
+{'config': 'r5_mini_both', 'cv': 0.6118, 'cv_adj': 0.6103, 'cv_macro': 0.5555, 'cross_unseen': nan, 'cross_seen': 0.6722, 'cross_seen_adj': 0.6681}
+          model     cv  cv_macro  cross_seen
+  mini/daily 단독 0.5454    0.4450      0.5525
+mini/diurnal 단독 0.5212    0.4057      0.5390
+         config     cv  cv_adj  cv_macro  cross_unseen  cross_seen  cross_seen_adj    d_cv  d_cross_seen_adj
+        r5_base 0.6087  0.6053    0.5500           NaN      0.6694          0.6660  0.0000            0.0000
+  r5_mini_daily 0.6123  0.6106    0.5555           NaN      0.6726          0.6681  0.0037            0.0020
+r5_mini_diurnal 0.6069  0.6027    0.5478           NaN      0.6709          0.6698 -0.0018            0.0038
+   r5_mini_both 0.6118  0.6103    0.5555           NaN      0.6722          0.6681  0.0031            0.0020
+채택 기준(스태킹 기준 대비 cross_seen_adj +0.005, cv 하락 없음) 통과: 없음
+✅ 완료 23.0분

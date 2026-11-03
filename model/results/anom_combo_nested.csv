@@ -1,0 +1,6 @@
+﻿labels,fold,chosen
+anom_labels.csv,0,z+GRU 최대
+anom_labels.csv,1,z+변화점 기하평균
+anom_labels.csv,2,z+변화점 기하평균
+anom_labels.csv,3,z+변화점 기하평균
+anom_labels.csv,4,z+GRU 최대

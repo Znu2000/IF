@@ -1,0 +1,5 @@
+epoch 0: loss 0.1882  (2.1분)
+epoch 1: loss 0.1702  (3.5분)
+epoch 2: loss 0.1660  (4.2분)
+✅ anom_gru_rt.parquet  (5.8분)
+✅ anom_gru_rt_test.parquet  (7.4분)

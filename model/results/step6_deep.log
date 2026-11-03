@@ -1,0 +1,25 @@
+  [seq] fold 0: acc 0.5817 (조기종료 검증 0.6000, 20 epoch, 4.7분)
+  [seq] fold 1: acc 0.5444 (조기종료 검증 0.5773, 10 epoch, 7.1분)
+  [seq] fold 2: acc 0.5326 (조기종료 검증 0.5732, 8 epoch, 9.2분)
+  [seq] fold 3: acc 0.5360 (조기종료 검증 0.5649, 8 epoch, 11.2분)
+  [seq] fold 4: acc 0.5522 (조기종료 검증 0.5753, 24 epoch, 16.6분)
+{'model': 'seq 단독', 'cv': 0.5493760173629951, 'cv_macro': 0.4158213356354753, 'cross_seen': 0.5672318035662087}
+  [img] fold 0: acc 0.5505 (조기종료 검증 0.5546, 16 epoch, 30.6분)
+  [img] fold 1: acc 0.5376 (조기종료 검증 0.5711, 12 epoch, 41.4분)
+  [img] fold 2: acc 0.5326 (조기종료 검증 0.5959, 12 epoch, 52.1분)
+  [img] fold 3: acc 0.5332 (조기종료 검증 0.5814, 13 epoch, 63.8분)
+  [img] fold 4: acc 0.5455 (조기종료 검증 0.5485, 10 epoch, 73.4분)
+{'model': 'img 단독', 'cv': 0.539880629408573, 'cv_macro': 0.39089346682359055, 'cross_seen': 0.5542239111370945}
+{'config': 'r6_base', 'cv': 0.6087, 'cv_adj': 0.6053, 'cv_macro': 0.55, 'cross_unseen': nan, 'cross_seen': 0.6694, 'cross_seen_adj': 0.666}
+{'config': 'r6_seq', 'cv': 0.6085, 'cv_adj': 0.6077, 'cv_macro': 0.543, 'cross_unseen': nan, 'cross_seen': 0.6675, 'cross_seen_adj': 0.6656}
+{'config': 'r6_img', 'cv': 0.6073, 'cv_adj': 0.6065, 'cv_macro': 0.5469, 'cross_unseen': nan, 'cross_seen': 0.6695, 'cross_seen_adj': 0.6665}
+{'config': 'r6_both', 'cv': 0.6088, 'cv_adj': 0.6049, 'cv_macro': 0.5451, 'cross_unseen': nan, 'cross_seen': 0.6681, 'cross_seen_adj': 0.6663}
+ model     cv  cv_macro  cross_seen
+seq 단독 0.5494    0.4158      0.5672
+img 단독 0.5399    0.3909      0.5542
+ config     cv  cv_adj  cv_macro  cross_unseen  cross_seen  cross_seen_adj    d_cv  d_cross_seen_adj
+r6_base 0.6087  0.6053    0.5500           NaN      0.6694          0.6660  0.0000            0.0000
+ r6_seq 0.6085  0.6077    0.5430           NaN      0.6675          0.6656 -0.0001           -0.0004
+ r6_img 0.6073  0.6065    0.5469           NaN      0.6695          0.6665 -0.0014            0.0004
+r6_both 0.6088  0.6049    0.5451           NaN      0.6681          0.6663  0.0001            0.0003
+✅ 완료 73.6분

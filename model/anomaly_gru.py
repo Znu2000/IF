@@ -4,7 +4,8 @@
   입력/목표 : anomaly_model.prep_X 피처 (학습 분포로 표준화, ±5 클리핑)
   학습 : 학습 선박 시간대에서 40만 개 표본, 3 epoch (CPU 로 충분)
   출력 : features/anom_gru.parquet, anom_gru_test.parquet  (anom_hourly* 와 같은 행 순서, gru_err 1열)
-실행: python anomaly_gru.py [--device cuda]
+  --rt : 실시간(과거만) 버전 ─ 미래 정보인 gap_next_h(다음 기록까지 공백)를 입력·목표에서 빼고 anom_gru_rt*.parquet 로 저장
+실행: python anomaly_gru.py [--device cuda] [--rt]
 """
 import argparse
 import time
@@ -30,9 +31,10 @@ class GRUForecast(nn.Module):
         return self.head(self.gru(x)[0][:, -1])
 
 
-def load(tag, mu=None, sd=None):
+def load(tag, mu=None, sd=None, rt=False):
     H = pd.read_parquet(C.FEAT_DIR / f"anom_hourly{tag}.parquet")
-    X = prep_X(H).to_numpy(np.float32)
+    X = prep_X(H)
+    X = (X.drop(columns="gap_next_h") if rt else X).to_numpy(np.float32)
     if mu is None:
         mu, sd = X.mean(0), X.std(0) + 1e-6
     X = np.clip((X - mu) / sd, -5, 5).astype(np.float32)
@@ -56,7 +58,7 @@ def masked(X, pos, idx):
 def main(a):
     torch.manual_seed(0)
     t0 = time.time()
-    X, rid, pos, mu, sd = load("")
+    X, rid, pos, mu, sd = load("", rt=a.rt)
     rng = np.random.default_rng(C.RANDOM_STATE)
     cand = np.flatnonzero(pos >= 3)
     tr = rng.choice(cand, size=min(400_000, len(cand)), replace=False)
@@ -81,7 +83,7 @@ def main(a):
     m.eval()
     for tag in ["", "_test"]:
         if tag:
-            X, rid, pos, _, _ = load(tag, mu, sd)
+            X, rid, pos, _, _ = load(tag, mu, sd, rt=a.rt)
         err = np.empty(len(X), np.float32)
         with torch.no_grad():
             for b in range(0, len(X), 16384):
@@ -89,11 +91,13 @@ def main(a):
                 p = m(torch.from_numpy(masked(X, pos, i)).to(dev)).cpu().numpy()
                 err[i] = np.abs(p - X[i]).mean(1)
         err[pos < 3] = np.nan  # 앞 기록이 거의 없으면 예측 불가
-        pd.DataFrame({"gru_err": err}).to_parquet(C.FEAT_DIR / f"anom_gru{tag}.parquet", index=False)
-        print(f"✅ anom_gru{tag}.parquet  ({(time.time() - t0) / 60:.1f}분)", flush=True)
+        name = f"anom_gru{'_rt' if a.rt else ''}{tag}.parquet"
+        pd.DataFrame({"gru_err": err}).to_parquet(C.FEAT_DIR / name, index=False)
+        print(f"✅ {name}  ({(time.time() - t0) / 60:.1f}분)", flush=True)
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--device", default="cpu")
+    ap.add_argument("--rt", action="store_true", help="실시간(과거만) 버전")
     main(ap.parse_args())
