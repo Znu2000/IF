@@ -16,6 +16,18 @@ python mil.py                # ⑤ MIL (선박 = 출어일 묶음) → results/o
 python summarize_results.py  # ⑥ 전체 모델 통합표 → results/summary_table.csv, cm_{A,B}_best.png
 python make_feature_catalog.py  # 팀 공유용 피처 목록 엑셀 → results/SeD_피처목록.xlsx
 ```
+
+### 2026-11-01 추가: 랭킹 조건 플래그 · 분류 v2 · 혼동쌍 피처 보강
+```bash
+python rank_features.py --tag v1                 # ③' 랭킹 (추천 설정, --legacy = 기존) → fold_rankings_v1.json + rank_flags_v1.json
+python train_classifiers.py --rank-tag v1        # ④' CPU 기본 4모델 (base, lgbm_tuned, catboost, hier_hyp)
+python train_classifiers_v2.py --rank-tag v1     # ④'' 과대적합·공선성 대응판 → metrics_clsv2_v1.csv
+python pair_features.py --tag pairboost          # ⑦ 혼동쌍(통발·자망·연안복합) 표적 피처 보강
+python rank_pair_features.py --added results/pairsel_added_pairboost.json --tag pairrank   # ⑧ 쌍 안정 피처 랭킹
+python train_classifiers_v2.py --rank-tag pairrank
+```
+- 분류 코드는 `rank_flags_<tag>.json` 이 짝으로 있는 랭킹만 사용합니다 (다른 코드로 만든 랭킹이면 중단). 예전 랭킹 파일로 돌리려면 `--skip-rank-check`.
+- 설명: [docs/ranking_classification_v2.md](../docs/ranking_classification_v2.md) · [docs/pair_features.md](../docs/pair_features.md) · 결과: [docs/results_ranking_clsv2.md](../docs/results_ranking_clsv2.md)
 결과 요약과 해석은 [RESULTS.md](RESULTS.md)에 있습니다.
 테스트용 출력 폴더 변경: `SED_FEAT_DIR`, `SED_RESULT_DIR` 환경변수.
 
@@ -26,8 +38,11 @@ python make_feature_catalog.py  # 팀 공유용 피처 목록 엑셀 → results
 | `fe_hourly.py` | 1시간 항적 → 약 100개 피처 + 10분 평활 위치 12개. 나연 v2 정제 / 지유 P0·P1 / 민성 지터 강건(5-step·체류점) / 진우 스펙트럼 / 가설 B·C·D |
 | `fe_aggregate.py` | 공용 항구 → 모항 → 시간대 상태(PORT/SEA_STOP/DRIFT/FISH/TRANSIT) → 선박-일 → 선박. 가설 A(재방문)·E(하루 리듬)·G(bag-of-days)·H(계절) |
 | `cv_common.py` | 피처 풀(A=위치 제외/B=위치 포함), StratifiedGroupKFold(rfid_id), 피처 범주 메타 |
-| `rank_features.py` | SHAP + 순열 중요도 + MI 통합 순위, Boruta shadow 검정, Spearman 중복 제거, k 스윕(1-SE rule) |
-| `train_classifiers.py` | M0 LogReg(기준) / M1 RF / M2 LightGBM+Optuna(nested) / M3 CatBoost / M4 TabM(SOTA) / M5 가설 2단계 계층 모델 / M6 앙상블 (+ ablation, 옵션 TabPFN) |
+| `rank_features.py` | SHAP + 순열 중요도 + MI 통합 순위, Boruta shadow 검정, Spearman 중복 제거, k 스윕(1-SE rule). 랭킹 조건 플래그(`--shap-on-valid`, `--class-norm`, `--shadow-pct`, `--hits-mode`, `--weights`, `--stability`, `--legacy`) |
+| `train_classifiers.py` | M0 LogReg(기준) / M1 RF / M2 LightGBM+Optuna(nested) / M3 CatBoost / M4 TabM(SOTA) / M5 가설 2단계 계층 모델 / M6 앙상블 (+ ablation, 옵션 TabPFN). 기본 실행은 CPU 4모델, `--rank-tag`/`--rerank`, 랭킹 출처 검증 |
+| `train_classifiers_v2.py` | 분류 v2: fold 내부 공선성 제거(\|ρ\|·VIF), elastic-net, early stopping + CV-bagging, LOFO 가중 앙상블, 부트스트랩 CI·과대적합 gap |
+| `pair_features.py` | 혼동쌍 표적 피처 보강: 계열 대표 → 쌍별 안정성 선택(L1) → 기존 top-k 에 전진 추가 (레지스트리: `results/SeD_feature_registry_code.xlsx`) |
+| `rank_pair_features.py` | 쌍 안정 피처 후보군 안에서 rank_features 방식 랭킹 + 쌍 점수 결합, k 스윕에 연안복합 흡수율 기록 |
 | `mil.py` | 다중 인스턴스 학습: 출어일 묶음 + gated attention, 기간 길이별 성능, attention 해석 |
 | `summarize_results.py` | 저장된 OOF 로 모델별 원본/클래스 보정 점수 통합표 |
 | `feature_taxonomy.py` | 피처 분류표 (대분류 12 → 세부 구분 37 → 기본 피처) + 설명·출처 |

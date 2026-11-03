@@ -4,27 +4,44 @@
 피처: rank_features.py 가 fold 별 train 에서 만든 순위의 상위 k* (선정 누수 없음)
 풀  : A = 위치 제외(순수 행동) / B = 위치 포함
 
-모델
-  M0 base      : Logistic Regression (분위수 정규화 + class_weight)   ← 비교 기준
-  M1 rf        : Random Forest (balanced_subsample)
+모델 — CPU 기본 실행 (--models 를 안 주면 이 4개 + 앙상블)
+  M0 base      : Logistic Regression (분위수 정규화 + class_weight)   ← 비교 기준 (수 초)
   M2 lgbm_tuned: LightGBM + Optuna (fold 내부 3-fold 에서만 튜닝 = nested)
   M3 catboost  : CatBoost (auto_class_weights=SqrtBalanced, 내부 검증 early stopping)
-  M4 tabm      : TabM (ICLR 2025, BatchEnsemble MLP + piecewise-linear 임베딩)  ← SOTA
   M5 hier_hyp  : [가설 모델] 2단계 계층 분류
                  1단계 4클래스 LightGBM → 2단계 자망 vs 연안복합 전문 분류기
                  (top-k + 가설 피처 A 재방문·B 직선투망·C 속도구조·D 선회·E 하루리듬·G 이질성·H 계절)
                  P(자망) = P1(자망∪연안복합) · P2(자망|둘 중 하나)
-  M6 ensemble  : M2+M3+M4+M5 확률 평균  (+ macro-F1 클래스 가중 보정: 다른 fold OOF 로만 학습)
-  (옵션) tabpfn: --tabpfn 플래그. TabPFN 가중치는 HF 라이선스 동의·로그인이 필요 → 사용자가 직접 설정 후 사용
+  M6 ensemble  : M2+M3+M5 확률 평균  (+ macro-F1 클래스 가중 보정: 다른 fold OOF 로만 학습)
 
-실행: python train_classifiers.py                 (A, B 모두)
-      python train_classifiers.py --pools B --models lgbm_tuned tabm
-      python train_classifiers.py --trials 60 --device cuda   (서버)
+CPU 기본 실행에서 뺀 모델 (코드는 남겨 둠, --models 로 직접 지정하면 실행)
+  M1 rf        : Random Forest — 같은 트리 계열인 LightGBM/CatBoost 보다 대체로 낮고 앙상블에도 안 들어감
+  M4 tabm      : TabM — 딥러닝이라 CPU 에서 fold 당 수십 분, GPU 서버용 (--device cuda)
+  tabpfn       : TabPFN — CPU 에서 매우 느리고 HF 라이선스 동의·로그인 필요
+  lgbm_base    : hier_hyp 2단계 효과를 분리하는 ablation 용
+
+랭킹 연결 (플래그 버전 rank_features.py 전용)
+  · 같은 폴더의 rank_features.py (랭킹 조건 플래그 버전) 가 만든 랭킹만 사용한다.
+  · 검증: 그 코드는 fold_rankings{_tag}.json 과 함께 rank_flags{_tag}.json 을 같은 실행에서 저장한다.
+          → rank_flags 가 없거나 저장 시각이 어긋나면 "다른(수정 전) 랭킹 코드로 만든 파일" 로 보고 중단.
+          + fold 분할이 현재 데이터와 같은지, 랭킹 피처가 데이터에 모두 있는지도 확인.
+  · --rerank : 분류 실험 전에 rank_features.py 를 이 프로세스에서 직접 실행해 랭킹부터 새로 만든다.
+               (기본 = rank_features.FLAGS 추천 설정, --rank-legacy = 수정 전 동작)
+               세부 플래그를 바꾸려면 rank_features.py 를 --tag 와 함께 따로 돌린 뒤 --rank-tag 로 지정.
+  · 결과 파일(metrics, tuning_log, oof, cm 그림)에는 랭킹 tag 가 붙어 서로 다른 랭킹 결과가 섞이지 않는다.
+    metrics 에는 사용한 랭킹 파일과 플래그가 열로 기록되고, run_info{_tag}.json 에도 저장된다.
+
+실행: python train_classifiers.py --rerank --rank-tag v1           (랭킹(추천 설정) → 분류 한 번에)
+      python rank_features.py --class-norm max --tag v2            (랭킹을 따로 원하는 플래그로)
+      python train_classifiers.py --rank-tag v2                    (그 랭킹으로 분류)
+      python train_classifiers.py --rank-tag v1 --trials 15        (더 빠르게: Optuna 시도 축소)
+      python train_classifiers.py --rank-tag v1 --models tabm --device cuda   (서버, 이후 --reuse-oof 로 합류)
 """
 import argparse
 import json
 import time
 import warnings
+from pathlib import Path
 
 import lightgbm as lgb
 import matplotlib
@@ -110,7 +127,7 @@ def m_lgbm_tuned(Xtr, ytr, Xva, trials=30, log=None, **_):
 
 def m_catboost(Xtr, ytr, Xva, device="cpu", cb_weights="SqrtBalanced", **_):
     a, b, ya, yb = train_test_split(Xtr, ytr, test_size=0.15, stratify=ytr, random_state=0)
-    kw = dict(loss_function="MultiClass", auto_class_weights=cb_weights, depth=6, learning_rate=0.05,
+    kw = dict(loss_function="MultiClass", auto_class_weights=None if cb_weights == "None" else cb_weights, depth=6, learning_rate=0.05,
               iterations=3000, l2_leaf_reg=3, random_seed=0, verbose=0, od_type="Iter", od_wait=200,
               thread_count=C.N_JOBS, task_type="GPU" if device == "cuda" else "CPU")
     m = CatBoostClassifier(**kw).fit(a, ya, eval_set=(b, yb), use_best_model=True)
@@ -258,18 +275,92 @@ def plot_cm(y, P, title, path):
     fig.savefig(path, bbox_inches="tight", dpi=120); plt.close(fig)
 
 
+# ─────────────────────────────────────────────
+# 랭킹 연결: 플래그 버전 rank_features.py 결과만 사용
+# ─────────────────────────────────────────────
+def ranking_paths(a):
+    """(fold_rankings 경로, rank_flags 경로) — rank_features.py 의 저장 규칙과 동일"""
+    if a.rankings:
+        rk = Path(a.rankings)
+        fl = rk.with_name(rk.name.replace("fold_rankings", "rank_flags", 1)) if "fold_rankings" in rk.name else None
+        return rk, fl
+    sfx = f"_{a.rank_tag}" if a.rank_tag else ""
+    return C.RESULT_DIR / f"fold_rankings{sfx}.json", C.RESULT_DIR / f"rank_flags{sfx}.json"
+
+
+def run_my_ranking(a):
+    """플래그 버전 rank_features.py 를 이 프로세스에서 직접 실행"""
+    import rank_features as RF
+    if not hasattr(RF, "FLAGS") or not hasattr(RF, "LEGACY"):
+        raise SystemExit("❌ 같은 폴더의 rank_features.py 가 랭킹 조건 플래그 버전이 아닙니다 (FLAGS/LEGACY 없음).")
+    cfg = dict(RF.LEGACY if a.rank_legacy else RF.FLAGS)
+    cfg["tag"] = a.rank_tag
+    print(f"━━ 피처 랭킹 실행: rank_features.py ({'legacy' if a.rank_legacy else '추천 설정'}, tag='{a.rank_tag}') ━━")
+    RF.main(cfg)
+
+
+def load_ranking(a, S, y):
+    rk, fl = ranking_paths(a)
+    print(f"랭킹 파일: {rk}")
+    if not rk.exists():
+        raise SystemExit(f"❌ 랭킹 파일이 없습니다: {rk}\n"
+                         f"   → python rank_features.py --tag {a.rank_tag or '<tag>'}  를 먼저 실행하거나 --rerank 를 붙이세요.")
+    R = json.loads(rk.read_text(encoding="utf-8"))
+    flags = json.loads(fl.read_text(encoding="utf-8")) if fl is not None and fl.exists() else None
+
+    problems = []
+    # ① 출처: 플래그 버전만 rank_flags 를 같은 실행에서 함께 저장
+    if flags is None:
+        problems.append(f"짝이 되는 {fl.name if fl else 'rank_flags*.json'} 가 없습니다 → 수정 전(다른) 랭킹 코드로 만든 파일입니다.")
+    else:
+        dt = fl.stat().st_mtime - rk.stat().st_mtime
+        if not -5 <= dt <= 300:
+            problems.append(f"{rk.name} 와 {fl.name} 의 저장 시각이 {dt:+.0f}s 어긋납니다 "
+                            f"→ 랭킹 파일이 다른 실행(다른 랭킹 코드)으로 덮어써졌을 수 있습니다.")
+    # ② 구조와 데이터 일치
+    for pool in a.pools:
+        if pool not in R or "folds" not in R[pool] or "k_star" not in R[pool]:
+            problems.append(f"랭킹 파일에 Pool {pool} 결과가 없습니다.")
+            continue
+        missing = sorted({c for o in R[pool]["folds"] for c in o} - set(S.columns))
+        if missing:
+            problems.append(f"Pool {pool} 랭킹 피처 {len(missing)}개가 현재 데이터에 없습니다 (예: {missing[:3]}).")
+    F = V.folds(S, y)
+    if len(F) != len(R.get("fold_val_idx", [])) or any(
+            set(va.tolist()) != set(v) for (_, va), v in zip(F, R["fold_val_idx"])):
+        problems.append("랭킹 파일의 fold 분할이 현재 데이터의 fold 분할과 다릅니다 → 랭킹 이후 데이터가 바뀌었습니다.")
+
+    if problems:
+        msg = "\n".join(f"   - {p}" for p in problems)
+        if a.skip_rank_check:
+            print(f"⚠ 랭킹 검증 경고 (--skip-rank-check 로 계속 진행):\n{msg}")
+        else:
+            raise SystemExit(f"❌ 내 랭킹 코드(rank_features.py)의 결과로 확인되지 않아 중단합니다:\n{msg}\n"
+                             f"   → python train_classifiers.py --rerank --rank-tag {a.rank_tag or '<tag>'}\n"
+                             f"     (또는 rank_features.py --tag <tag> 실행 후 --rank-tag <tag>)")
+    if flags is not None:
+        print("랭킹 플래그:", json.dumps(flags, ensure_ascii=False))
+    return R, flags, rk
+
+
 def main(a):
     V.set_font()
+    if a.rerank:
+        run_my_ranking(a)
     S, y = V.load_ship()
-    R = json.loads((C.RESULT_DIR / "fold_rankings.json").read_text(encoding="utf-8"))
+    R, rank_flags, rk_path = load_ranking(a, S, y)
+    out_tag = a.tag or a.rank_tag
+    sfx = f"_{out_tag}" if out_tag else ""
+    rank_info = dict(rank_file=str(rk_path), rank_flags=json.dumps(rank_flags, ensure_ascii=False) if rank_flags else "")
     val_idx = [np.array(v) for v in R["fold_val_idx"]]
     fold_id = np.empty(len(y), int)
     for f, v in enumerate(val_idx):
         fold_id[v] = f
     models = [m for m in a.models if m != "tabpfn" or a.tabpfn]
-    rows, logs = [], {}
+    rows, logs, k_used = [], {}, {}
     for pool in a.pools:
         k = a.k or R[pool]["k_star"]
+        k_used[pool] = k
         pool_cols = V.feature_pool(S, pool)
         hyp_all = [c for c in pool_cols if V.is_hyp(c)]
         print(f"\n━━ Pool {pool}  (k={k}, 가설 피처 후보 {len(hyp_all)}개) ━━")
@@ -293,10 +384,10 @@ def main(a):
             rows.append(metrics_row(name, pool, y, P, fold_id))
             print(f"  {name:<11s} macro-F1 {rows[-1]['macro_f1']:.4f} (fold {rows[-1]['f1_fold_mean']:.4f}"
                   f"±{rows[-1]['f1_fold_std']:.4f})  {time.time() - t:5.0f}s", flush=True)
-            np.save(C.RESULT_DIR / f"oof_{pool}_{name}.npy", P)
-        if a.reuse_oof:  # 다른 실행(예: 서버의 TabM)에서 저장한 OOF 를 앙상블에 합류
+            np.save(C.RESULT_DIR / f"oof_{pool}_{name}{sfx}.npy", P)
+        if a.reuse_oof:  # 같은 tag(=같은 랭킹)로 다른 실행(예: 서버의 TabM)에서 저장한 OOF 만 합류
             for m in ENS_MEMBERS:
-                p = C.RESULT_DIR / f"oof_{pool}_{m}.npy"
+                p = C.RESULT_DIR / f"oof_{pool}_{m}{sfx}.npy"
                 if m not in OOF and p.exists():
                     OOF[m] = np.load(p)
                     rows.append(metrics_row(m, pool, y, OOF[m], fold_id) | {"members": "(reused oof)"})
@@ -312,15 +403,20 @@ def main(a):
                 print(f"  {r['model']:<11s} macro-F1 {r['macro_f1']:.4f} (fold {r['f1_fold_mean']:.4f}±{r['f1_fold_std']:.4f})")
         best = max([r for r in rows if r["pool"] == pool], key=lambda r: r["macro_f1"])
         plot_cm(y, OOF[best["model"]], f"Pool {pool} · {best['model']}  F1={best['macro_f1']:.3f}",
-                C.RESULT_DIR / f"cm_{pool}_best.png")
+                C.RESULT_DIR / f"cm_{pool}_best{sfx}.png")
         if models:
             base_f1 = V.macro_f1(y, OOF[models[0]].argmax(1))
             plot_cm(y, OOF[models[0]], f"Pool {pool} · {models[0]}  F1={base_f1:.3f}",
-                    C.RESULT_DIR / f"cm_{pool}_{models[0]}.png")
+                    C.RESULT_DIR / f"cm_{pool}_{models[0]}{sfx}.png")
     M = pd.DataFrame(rows)
-    out = C.RESULT_DIR / ("metrics.csv" if a.tag == "" else f"metrics_{a.tag}.csv")
-    M.round(4).to_csv(out, index=False, encoding="utf-8-sig")
-    (C.RESULT_DIR / f"tuning_log{'_' + a.tag if a.tag else ''}.json").write_text(json.dumps(logs, ensure_ascii=False, default=float), encoding="utf-8")
+    M["k"] = M["pool"].map(k_used)
+    for c, v in rank_info.items():
+        M[c] = v
+    M.round(4).to_csv(C.RESULT_DIR / f"metrics{sfx}.csv", index=False, encoding="utf-8-sig")
+    (C.RESULT_DIR / f"tuning_log{sfx}.json").write_text(json.dumps(logs, ensure_ascii=False, default=float), encoding="utf-8")
+    (C.RESULT_DIR / f"run_info{sfx}.json").write_text(json.dumps(
+        dict(rank_file=rank_info["rank_file"], rank_flags=rank_flags, k=k_used, models=models, pools=a.pools,
+             trials=a.trials, cb_weights=a.cb_weights), ensure_ascii=False, indent=2), encoding="utf-8")
     print("\n" + M[["pool", "model", "macro_f1", "f1_fold_std"] + [f"f1_{c}" for c in C.CLASSES]
                    + ["gill_vs_coast_f1"]].round(4).to_string(index=False))
 
@@ -328,7 +424,18 @@ def main(a):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--pools", nargs="*", default=["A", "B"])
-    ap.add_argument("--models", nargs="*", default=["base", "rf", "lgbm_tuned", "catboost", "tabm", "hier_hyp"])
+    # CPU 기본: base(비교 기준) + 앙상블 멤버 3개. rf/tabm/tabpfn/lgbm_base 는 --models 로 직접 지정
+    ap.add_argument("--models", nargs="*", default=["base", "lgbm_tuned", "catboost", "hier_hyp"],
+                    choices=list(MODELS))
+    ap.add_argument("--rank-tag", default="",
+                    help="rank_features.py 의 --tag 값. results/fold_rankings_<tag>.json 을 읽고 결과 파일에도 같은 tag 를 붙임")
+    ap.add_argument("--rerank", action="store_true",
+                    help="분류 전에 rank_features.py 를 직접 실행해 랭킹을 새로 만듦 (기본 = 추천 설정 FLAGS)")
+    ap.add_argument("--rank-legacy", action="store_true", help="--rerank 시 rank_features.py 를 수정 전 동작(LEGACY)으로")
+    ap.add_argument("--rankings", default=None,
+                    help="랭킹 파일 경로 직접 지정 (--rank-tag 대신). 짝 rank_flags 파일이 같은 폴더에 있어야 함")
+    ap.add_argument("--skip-rank-check", action="store_true",
+                    help="랭킹 출처 검증 실패를 경고로만 처리 (파일을 다른 PC 로 옮겨 저장 시각이 바뀐 경우 등)")
     ap.add_argument("--tabpfn", action="store_true", help="TabPFN 추가 (HF 라이선스 동의·로그인 선행 필요)")
     ap.add_argument("--trials", type=int, default=30)
     ap.add_argument("--k", type=int, default=None, help="k* 대신 고정 k")
@@ -338,6 +445,8 @@ if __name__ == "__main__":
     # Pool B 검증: Balanced 0.456 → SqrtBalanced 0.531 (소수 클래스 과보정 완화)
     ap.add_argument("--cb-weights", default="SqrtBalanced", choices=["Balanced", "SqrtBalanced", "None"])
     a = ap.parse_args()
+    if a.rerank and a.rankings:
+        ap.error("--rerank 는 --rankings 와 함께 쓸 수 없습니다. 저장 위치를 --rank-tag 로 지정하세요.")
     if a.tabpfn and "tabpfn" not in a.models:
         a.models.append("tabpfn")
     main(a)
