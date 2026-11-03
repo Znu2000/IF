@@ -1,0 +1,11 @@
+피처 411 + 행동 26 + 지역 사전확률 10 / 연도 차이 제외 ['mv_lowfreq_ratio_mean', 'mv_lowfreq_ratio_median']
+2025 검증 6,656척 (테스트A·B 시트 200척 제외) (0.1분)
+  [all_rp] fold 0: acc 0.6142 (13.4분)
+  [all_rp] fold 1: acc 0.5919 (30.6분)
+  [all_rp] fold 2: acc 0.5997 (49.8분)
+  [all_rp] fold 3: acc 0.6099 (62.2분)
+  [all_rp] fold 4: acc 0.6242 (74.8분)
+config     cv  cv_adj  cv_macro  cross_unseen  cross_seen  cross_seen_adj   d_cv  d_cross_seen_adj  n_val25
+ r4_rp 0.6044  0.6032    0.5431           NaN      0.6701          0.6708 0.0000            0.0000     6656
+all_rp 0.6080  0.6104    0.5497        0.6136      0.6746          0.6743 0.0035            0.0035     6656
+✅ 완료 83.1분
