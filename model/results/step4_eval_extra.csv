@@ -1,0 +1,13 @@
+﻿config,n_add,cv,cv_macro,cross_seen
+base@1,0,0.5956,0.5342,0.6782
+base@2,0,0.5918,0.5313,0.6755
+revisit@1,12,0.6019,0.547,0.6779
+revisit@2,12,0.6015,0.5404,0.6761
+revisit+period,26,0.6024,0.5486,0.6749
+revisit+period@1,26,0.599,0.5382,0.6742
+revisit+period@2,26,0.6007,0.5479,0.6757
+revisit+period+dbscan,39,0.6008,0.5433,0.6789
+revisit+period+dbscan@1,39,0.5985,0.5444,0.6773
+revisit+period+dbscan@2,39,0.6028,0.5496,0.6776
+all@1,45,0.6057,0.5558,0.6782
+all@2,45,0.6013,0.5484,0.6761

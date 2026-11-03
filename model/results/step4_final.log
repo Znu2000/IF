@@ -1,0 +1,55 @@
+학습 7372척, 테스트 7768척(학습에도 있는 6842척) (0.1분)
+  [revisit] fold 0: acc 0.6129 (3.3분)
+  [revisit] fold 1: acc 0.5925 (6.0분)
+  [revisit] fold 2: acc 0.5991 (8.8분)
+  [revisit] fold 3: acc 0.6031 (10.7분)
+  [revisit] fold 4: acc 0.6140 (12.2분)
+{'config': 'r4_revisit', 'cv': 0.6043, 'cv_adj': 0.6077, 'cv_macro': 0.5431, 'cross_unseen': 0.6121, 'cross_seen': 0.6673, 'cross_seen_adj': 0.6691, 'weights': '[1.221, 0.905, 1.221, 0.741]'}
+  [rp] fold 0: acc 0.6102 (15.4분)
+  [rp] fold 1: acc 0.5831 (17.5분)
+  [rp] fold 2: acc 0.6038 (20.3분)
+  [rp] fold 3: acc 0.6140 (22.9분)
+  [rp] fold 4: acc 0.6113 (25.5분)
+{'config': 'r4_rp', 'cv': 0.6044, 'cv_adj': 0.6032, 'cv_macro': 0.5431, 'cross_unseen': 0.6111, 'cross_seen': 0.6709, 'cross_seen_adj': 0.6716, 'weights': '[1.105, 0.819, 1.492, 1.492]'}
+Traceback (most recent call last):
+  File "C:\Users\jinwo\SeD_DATA_AI\model\step4_final.py", line 105, in <module>
+    main(ap.parse_args())
+    ~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\jinwo\SeD_DATA_AI\model\step4_final.py", line 89, in main
+    save(rows)
+    ~~~~^^^^^^
+  File "C:\Users\jinwo\SeD_DATA_AI\model\step3_region.py", line 240, in save
+    pd.concat([old[~old["config"].isin(new["config"])], new]).round(4).to_csv(p, index=False, encoding="utf-8-sig")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pandas\core\generic.py", line 3989, in to_csv
+    return DataFrameRenderer(formatter).to_csv(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        path_or_buf,
+        ^^^^^^^^^^^^
+    ...<14 lines>...
+        storage_options=storage_options,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pandas\io\formats\format.py", line 1014, in to_csv
+    csv_formatter.save()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pandas\io\formats\csvs.py", line 251, in save
+    with get_handle(
+         ~~~~~~~~~~^
+        self.filepath_or_buffer,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        storage_options=self.storage_options,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ) as handles:
+    ^
+  File "C:\Users\jinwo\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pandas\io\common.py", line 873, in get_handle
+    handle = open(
+        handle,
+    ...<3 lines>...
+        newline="",
+    )
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\jinwo\\SeD_DATA_AI\\model\\results\\step1_results.csv'

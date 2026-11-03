@@ -31,3 +31,7 @@ model/results/test_pred_all.csv
 model/results/submission*.xlsx
 model/results/cnnmil_test.csv
 model/results/step1_test_*.npy
+model/results/step6_test_*.npy
+model/results/step5_test_*.npy
+model/results/anom_scores_test*
+model/catboost_info/

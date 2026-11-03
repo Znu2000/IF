@@ -1,0 +1,19 @@
+학습 7372척, 테스트 7768척(학습에도 있는 6842척) (0.0분)
+  [rp] fold 0: acc 0.6102 (2.1분)
+  [rp] fold 1: acc 0.5831 (4.4분)
+  [rp] fold 2: acc 0.6038 (7.2분)
+  [rp] fold 3: acc 0.6140 (10.1분)
+  [rp] fold 4: acc 0.6113 (13.4분)
+{'config': 'r4_rp', 'cv': 0.6044, 'cv_adj': 0.6032, 'cv_macro': 0.5431, 'cross_unseen': 0.6111, 'cross_seen': 0.6709, 'cross_seen_adj': 0.6716, 'weights': '[1.105, 0.819, 1.492, 1.492]'}
+  [rpd] fold 0: acc 0.6041 (18.8분)
+  [rpd] fold 1: acc 0.5851 (22.0분)
+  [rpd] fold 2: acc 0.6038 (26.8분)
+  [rpd] fold 3: acc 0.6065 (32.7분)
+  [rpd] fold 4: acc 0.6147 (35.0분)
+{'config': 'r4_rpd', 'cv': 0.6028, 'cv_adj': 0.6028, 'cv_macro': 0.5431, 'cross_unseen': 0.6122, 'cross_seen': 0.6752, 'cross_seen_adj': 0.6735, 'weights': '[1.105, 1.0, 1.221, 1.492]'}
+           config     cv  cv_adj  cv_macro  cross_unseen  cross_seen  cross_seen_adj  d_cross_seen_adj   d_cv
+prior_now_noshift 0.5997  0.5952    0.5349           NaN      0.6690          0.6706            0.0000 0.0000
+            r4_rp 0.6044  0.6032    0.5431        0.6111      0.6709          0.6716            0.0010 0.0047
+           r4_rpd 0.6028  0.6028    0.5431        0.6122      0.6752          0.6735            0.0029 0.0031
+채택 기준(cross_seen_adj +0.005 이상, cv 하락 없음) 통과: 없음 → 기존 유지
+✅ 완료 36.4분

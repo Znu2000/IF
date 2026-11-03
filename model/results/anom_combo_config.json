@@ -1,0 +1,12 @@
+{
+ "combo": "IF+GRU+변화점 기하평균",
+ "parts": [
+  "if_type",
+  "gru",
+  "cpd"
+ ],
+ "how": "geo",
+ "gru": "실시간 gru_rt",
+ "cusum_k": 1.0,
+ "gap_reset_h": 12
+}
