@@ -36,3 +36,5 @@ model/results/step5_test_*.npy
 model/results/anom_scores_test*
 model/catboost_info/
 model/results/step7_test_*.npy
+model/results/step11_test_*.npy
+model/results/step12_test_*.npy

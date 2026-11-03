@@ -53,3 +53,14 @@ python train_classifiers_v2.py --rank-tag pairrank
 - ①②는 **CPU 작업**이라 GPU를 써도 빨라지지 않음. 코어가 많으면 `SED_N_JOBS`를 코어 수 −2 정도로, `SED_CHUNK=200000`.
 - ④ `--device cuda` 를 주면 TabM·CatBoost 가 GPU 사용. `--trials 60` 등으로 튜닝을 늘려도 됨.
 - TabPFN(옵션, `--tabpfn`): 가중치를 받으려면 Hugging Face 라이선스 동의와 로그인이 필요. 본인 계정으로 직접 설정한 뒤 사용.
+
+## 이후 단계 코드 (2026-11)
+| 파일 | 내용 |
+|---|---|
+| `step7_allfeats.py` | 선박 피처 전체 + 재방문·출어 주기 + 지역 사전확률 (`all_rp`) |
+| `step9_*.py` | 사고 라벨 v2, 탐지 평가, 1분 점 급정지, 위약 검정, 사고 통계·후보 묶음 평가 |
+| `step10_profile_check.py` | 프로필 금지 공지 대비 피처 분류 |
+| `step11_train26.py` | 2025 정보를 쓰지 않는 재학습 (`shift_feats` 삭제) |
+| `step12_theory.py`, `step12_final.py` | 조업행태 문서 기반 피처 생성·선별·재학습 |
+
+Built with PriorLabs-TabPFN

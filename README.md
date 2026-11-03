@@ -36,3 +36,11 @@ pip install -r model/requirements.txt
 export SED_DATA_ROOT="/path/to/문제 데이터_수정_0928"
 cd model && python fe_hourly.py && python fe_aggregate.py && python rank_features.py && python train_classifiers.py
 ```
+
+## 현재 상태 (2026-11-03)
+- 과제 1 최고 기록: `all_rp` 리더보드 Test A 0.59, 총점 0.69 (cv 약 0.61). 분류는 2026년 데이터로 학습·검증합니다.
+- 다음 단계: 조업형태 문서 기반 피처(`step12_*`)로 분류를 다듬은 뒤, 분류 → 이상탐지 2단계 파이프라인을 만듭니다.
+- 결과 기록: [model/RESULTS.md](model/RESULTS.md) · 기술 문서: [docs/model_technical_doc.md](docs/model_technical_doc.md) · 조업행태 분석: [docs/fishing_behavior_theory_vs_data.md](docs/fishing_behavior_theory_vs_data.md)
+- 발표 자료 생성 코드: `report/` (`*.pptx`, `*.docx` 원본은 저장소에 올리지 않습니다)
+
+Built with PriorLabs-TabPFN
