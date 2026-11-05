@@ -26,7 +26,7 @@ Thumbs.db
 .idea/
 
 # ── 실제 선박 ID가 들어간 산출물 / 제출 파일 (업로드 금지) ──
-model/results/anom_labels.csv
+model/results/anom_labels*.csv
 model/results/test_pred_all.csv
 model/results/submission*.xlsx
 model/results/cnnmil_test.csv
@@ -36,3 +36,5 @@ model/results/step5_test_*.npy
 model/results/anom_scores_test*
 model/catboost_info/
 model/results/step7_test_*.npy
+model/results/step11_test_*.npy
+model/results/step12_test_*.npy

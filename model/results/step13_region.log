@@ -1,0 +1,47 @@
+시간대 3,887,065행 / 선박 7,372척 / 1단계 cv 0.6066 / 라벨 A·AS(거리) 12, A·AS·S(순환 포함) 21 (0.2분)
+점수 계산 끝 (0.4분)
+지역 안 정상 선박 2,451척
+            점수            라벨  n  최고점_보정AUC  경보율_보정AUC
+       기준: 급정지      A·AS(거리) 12      0.594      0.500
+       기준: 급정지 A·AS·S(순환 포함) 21      0.549      0.500
+       none rt      A·AS(거리) 12      0.661      0.559
+       none rt A·AS·S(순환 포함) 21      0.621      0.522
+     none post      A·AS(거리) 12      0.566      0.548
+     none post A·AS·S(순환 포함) 21      0.548      0.512
+     oracle rt      A·AS(거리) 12      0.630      0.567
+     oracle rt A·AS·S(순환 포함) 21      0.547      0.553
+   oracle post      A·AS(거리) 12      0.547      0.503
+   oracle post A·AS·S(순환 포함) 21      0.488      0.481
+       hard rt      A·AS(거리) 12      0.656      0.565
+       hard rt A·AS·S(순환 포함) 21      0.595      0.550
+     hard post      A·AS(거리) 12      0.582      0.501
+     hard post A·AS·S(순환 포함) 21      0.540      0.499
+       soft rt      A·AS(거리) 12      0.678      0.602
+       soft rt A·AS·S(순환 포함) 21      0.629      0.547
+     soft post      A·AS(거리) 12      0.580      0.545
+     soft post A·AS·S(순환 포함) 21      0.554      0.508
+  none [trans]      A·AS(거리) 12      0.556      0.561
+  none [trans] A·AS·S(순환 포함) 21      0.593      0.523
+    none [run]      A·AS(거리) 12      0.603      0.531
+    none [run] A·AS·S(순환 포함) 21      0.604      0.536
+    none [loc]      A·AS(거리) 12      0.696      0.494
+    none [loc] A·AS·S(순환 포함) 21      0.642      0.494
+  none [whole]      A·AS(거리) 12      0.540      0.566
+  none [whole] A·AS·S(순환 포함) 21      0.536      0.553
+    none [gap]      A·AS(거리) 12      0.395      0.500
+    none [gap] A·AS·S(순환 포함) 21      0.435      0.500
+   none [trip]      A·AS(거리) 12      0.594      0.500
+   none [trip] A·AS·S(순환 포함) 21      0.582      0.500
+oracle [trans]      A·AS(거리) 12      0.570      0.475
+oracle [trans] A·AS·S(순환 포함) 21      0.603      0.527
+  oracle [run]      A·AS(거리) 12      0.585      0.531
+  oracle [run] A·AS·S(순환 포함) 21      0.606      0.536
+  oracle [loc]      A·AS(거리) 12      0.678      0.495
+  oracle [loc] A·AS·S(순환 포함) 21      0.586      0.495
+oracle [whole]      A·AS(거리) 12      0.535      0.565
+oracle [whole] A·AS·S(순환 포함) 21      0.538      0.552
+  oracle [gap]      A·AS(거리) 12      0.399      0.492
+  oracle [gap] A·AS·S(순환 포함) 21      0.377      0.492
+ oracle [trip]      A·AS(거리) 12      0.520      0.491
+ oracle [trip] A·AS·S(순환 포함) 21      0.467      0.491
+✅ 완료 3.3분

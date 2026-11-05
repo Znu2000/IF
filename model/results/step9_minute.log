@@ -1,0 +1,16 @@
+바다 시간 175,141개 / 사고 38척, 정상 380척
+          detector labels    n  hit1h  hit3h  hit6h  rank_pct_median  vessel_auc  vessel_auc_activity_matched
+            minute    all 38.0  0.000  0.000  0.026              0.0       0.607                        0.615
+            minute    sea 21.0  0.000  0.000  0.048              0.0         NaN                          NaN
+            minute   port 17.0  0.000  0.000  0.000              0.0         NaN                          NaN
+      minute +분 보정    all 38.0  0.000  0.000  0.026              0.0       0.607                        0.615
+      minute +분 보정    sea 21.0  0.000  0.000  0.048              0.0         NaN                          NaN
+      minute +분 보정   port 17.0  0.000  0.000  0.000              0.0         NaN                          NaN
+      minute_drift    all 38.0  0.000  0.000  0.000              0.0       0.625                        0.656
+      minute_drift    sea 21.0  0.000  0.000  0.000              0.0         NaN                          NaN
+      minute_drift   port 17.0  0.000  0.000  0.000              0.0         NaN                          NaN
+minute_drift +분 보정    all 38.0  0.000  0.000  0.000              0.0       0.625                        0.656
+minute_drift +분 보정    sea 21.0  0.000  0.000  0.000              0.0         NaN                          NaN
+minute_drift +분 보정   port 17.0  0.000  0.000  0.000              0.0         NaN                          NaN
+         무작위 바다 시각    all  NaN  0.009  0.015  0.020              NaN         NaN                          NaN
+✅ 완료 0.1분

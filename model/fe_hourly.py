@@ -333,7 +333,7 @@ def row_features(parts):
         f["loops"] = float(abs(np.degrees(tt.sum())) / 360.0)
 
     # 지터 강건 k-step (민성): k점 간격 거리, 균등간격 가정 → dt = k·60/n 분
-    k = C.K_STEP
+    k = max(1, round(n * C.K_MINUTES / 60)) if C.K_MINUTES else C.K_STEP
     dt_h = k / max(n, 1)
     ksp, kh, kd, cycles = [], [], [], 0
     for q in Q:
@@ -394,7 +394,7 @@ def row_features(parts):
             f["ks_turn_med"] = float(np.median(np.concatenate(kt)))
 
     # 체류점
-    ns, ins, centers, lens = stay_points(CP)
+    ns, ins, centers, lens = stay_points(CP, min_pts=max(2, round(n * C.STAY_MIN_PTS / 60)) if C.K_MINUTES else C.STAY_MIN_PTS)
     f["n_stays"], f["stay_frac"] = ns, ins / n
     if lens:
         f["stay_dur_med_min"] = float(np.median(lens)) * 60.0 / n
