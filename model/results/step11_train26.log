@@ -1,0 +1,20 @@
+학습 7372척 / 풀 413 + 행동 26 / 참고 2025 6,832척 (시트 200척 제외) (0.0분)
+  [r4_rp] fold 0: acc 0.6102 (2.5분)
+  [r4_rp] fold 1: acc 0.5831 (5.2분)
+  [r4_rp] fold 2: acc 0.6004 (9.5분)
+  [r4_rp] fold 3: acc 0.6140 (12.3분)
+  [r4_rp] fold 4: acc 0.6113 (15.5분)
+    config     cv  cv_adj  cv_macro  cross_unseen  cross_seen  cross_seen_adj  n_val25
+r4_rp_no25 0.6038  0.6012    0.5428        0.6102      0.6707          0.6705     6832
+  r4_rp_기존 0.6044  0.6032    0.5431           NaN      0.6707          0.6715     6832
+  [all_rp] fold 0: acc 0.6129 (38.9분)
+  [all_rp] fold 1: acc 0.5932 (54.3분)
+  [all_rp] fold 2: acc 0.6031 (72.9분)
+  [all_rp] fold 3: acc 0.6031 (92.9분)
+  [all_rp] fold 4: acc 0.6208 (104.9분)
+     config     cv  cv_adj  cv_macro  cross_unseen  cross_seen  cross_seen_adj  n_val25
+ r4_rp_no25 0.6038  0.6012    0.5428        0.6102      0.6707          0.6705     6832
+   r4_rp_기존 0.6044  0.6032    0.5431           NaN      0.6707          0.6715     6832
+all_rp_no25 0.6066  0.6034    0.5495        0.6134      0.6765          0.6752     6832
+  all_rp_기존 0.6080  0.6104    0.5497           NaN      0.6759          0.6754     6832
+✅ 완료 114.1분

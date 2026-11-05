@@ -1,0 +1,14 @@
+급정지 사건 150,606건 / 선박 4,526척 (0.3분)
+순위 모델 계수: {'z_f_drift': np.float64(0.6), 'z_f_rare': np.float64(1.04), 'z_f_ret': np.float64(-0.12), 'z_f_tow': np.float64(-0.09), 'z_f_trip_short': np.float64(-0.3), 'z_f_gap': np.float64(-1.34), 'z_f_pre_speed': np.float64(0.21), 'f_drift': np.float64(-0.09), 'f_rare': np.float64(-1.98), 'f_ret': np.float64(-0.5), 'f_tow': np.float64(-0.13), 'f_trip_short': np.float64(0.02), 'f_gap': np.float64(-0.27), 'f_pre_speed': np.float64(-0.01)}
+     detector labels    n  hit1h  hit3h  hit6h  rank_pct_median  vessel_auc  vessel_auc_activity_matched
+      s_onset    all 38.0  0.053  0.079  0.079            0.840       0.780                        0.587
+      s_onset    sea 21.0  0.048  0.095  0.095            0.847         NaN                          NaN
+      s_onset   port 17.0  0.059  0.059  0.059            0.000         NaN                          NaN
+    s_unusual    all 38.0  0.026  0.026  0.026            0.843       0.736                        0.526
+    s_unusual    sea 21.0  0.000  0.000  0.000            0.864         NaN                          NaN
+    s_unusual   port 17.0  0.059  0.059  0.059            0.000         NaN                          NaN
+     s_ranker    all 38.0  0.026  0.053  0.053            0.860       0.656                        0.448
+     s_ranker    sea 21.0  0.000  0.048  0.048            0.885         NaN                          NaN
+     s_ranker   port 17.0  0.059  0.059  0.059            0.000         NaN                          NaN
+바다 시간 수(활동량)만    all  NaN    NaN    NaN    NaN              NaN       0.786                        0.516
+✅ 완료 0.7분

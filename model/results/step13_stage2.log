@@ -1,0 +1,143 @@
+시간대 3,887,065행 / 선박 7,372척 / 1단계 cv 0.6066 / 라벨 A·AS(거리) 12, A·AS·S(순환 포함) 21 (0.3분)
+점수 계산 끝 (0.5분)
+            점수            라벨  n  적중6h_건  무작위기대_건  순위백분위_중앙  순위백분위_평균
+       기준: 급정지      A·AS(거리) 12       1    0.545     0.000     0.360
+       기준: 급정지 A·AS·S(순환 포함) 21       2    0.699     0.843     0.534
+       none rt      A·AS(거리) 12       1    0.545     0.548     0.576
+       none rt A·AS·S(순환 포함) 21       1    0.699     0.614     0.638
+     none post      A·AS(거리) 12       0    0.545     0.569     0.604
+     none post A·AS·S(순환 포함) 21       0    0.699     0.700     0.681
+     oracle rt      A·AS(거리) 12       2    0.545     0.597     0.622
+     oracle rt A·AS·S(순환 포함) 21       2    0.699     0.680     0.662
+   oracle post      A·AS(거리) 12       1    0.545     0.670     0.658
+   oracle post A·AS·S(순환 포함) 21       1    0.699     0.694     0.694
+       hard rt      A·AS(거리) 12       2    0.545     0.611     0.630
+       hard rt A·AS·S(순환 포함) 21       2    0.699     0.680     0.644
+     hard post      A·AS(거리) 12       1    0.545     0.670     0.664
+     hard post A·AS·S(순환 포함) 21       1    0.699     0.694     0.678
+       soft rt      A·AS(거리) 12       2    0.545     0.602     0.612
+       soft rt A·AS·S(순환 포함) 21       2    0.699     0.703     0.663
+     soft post      A·AS(거리) 12       1    0.545     0.685     0.643
+     soft post A·AS·S(순환 포함) 21       1    0.699     0.726     0.692
+  none [trans]      A·AS(거리) 12       1    0.545     0.712     0.721
+  none [trans] A·AS·S(순환 포함) 21       1    0.699     0.599     0.705
+    none [run]      A·AS(거리) 12       0    0.545     0.488     0.422
+    none [run] A·AS·S(순환 포함) 21       0    0.699     0.613     0.572
+    none [loc]      A·AS(거리) 12       2    0.545     0.495     0.515
+    none [loc] A·AS·S(순환 포함) 21       2    0.699     0.611     0.540
+  none [whole]      A·AS(거리) 12       0    0.545     0.000     0.348
+  none [whole] A·AS·S(순환 포함) 21       0    0.699     0.802     0.523
+    none [gap]      A·AS(거리) 12       0    0.545     0.000     0.077
+    none [gap] A·AS·S(순환 포함) 21       0    0.699     0.000     0.041
+   none [trip]      A·AS(거리) 12       1    0.545     0.537     0.486
+   none [trip] A·AS·S(순환 포함) 21       1    0.699     0.462     0.449
+oracle [trans]      A·AS(거리) 12       1    0.545     0.752     0.732
+oracle [trans] A·AS·S(순환 포함) 21       1    0.699     0.665     0.709
+  oracle [run]      A·AS(거리) 12       0    0.545     0.509     0.425
+  oracle [run] A·AS·S(순환 포함) 21       0    0.699     0.629     0.581
+  oracle [loc]      A·AS(거리) 12       3    0.545     0.445     0.506
+  oracle [loc] A·AS·S(순환 포함) 21       3    0.699     0.554     0.523
+oracle [whole]      A·AS(거리) 12       0    0.545     0.000     0.348
+oracle [whole] A·AS·S(순환 포함) 21       0    0.699     0.802     0.522
+  oracle [gap]      A·AS(거리) 12       0    0.545     0.000     0.077
+  oracle [gap] A·AS·S(순환 포함) 21       0    0.699     0.000     0.041
+ oracle [trip]      A·AS(거리) 12       1    0.545     0.537     0.486
+ oracle [trip] A·AS·S(순환 포함) 21       1    0.699     0.462     0.449
+         점수    임계값  경보_천시간당_연안복합  경보_천시간당_자망  경보_천시간당_통발  경보_천시간당_채낚기연승낚시  업종_최대최소비  ±6h안_경보_사고수  사고수
+    기준: 급정지  3.000         0.000       0.000       0.000            0.000     0.000            0   21
+    none rt 23.699         0.288       1.188       0.922            3.171    11.013            0   21
+  none post 25.886         0.271       0.859       1.508            3.419    12.605            0   21
+  oracle rt 25.024         0.856       1.213       0.713            1.289     1.808            1   21
+oracle post 27.059         0.678       0.780       1.204            2.683     3.956            0   21
+    hard rt 24.810         0.451       1.661       0.323            1.898     5.884            1   21
+  hard post 26.612         0.482       1.215       0.831            2.506     5.200            0   21
+    soft rt 21.479         0.413       1.402       0.618            2.466     5.970            0   21
+  soft post 23.886         0.317       0.901       1.386            3.307    10.428            0   21
+            점수            라벨  n  최고점_보정AUC  경보율_보정AUC
+       기준: 급정지      A·AS(거리) 12      0.617      0.500
+       기준: 급정지 A·AS·S(순환 포함) 21      0.580      0.500
+       none rt      A·AS(거리) 12      0.729      0.560
+       none rt A·AS·S(순환 포함) 21      0.684      0.520
+     none post      A·AS(거리) 12      0.640      0.549
+     none post A·AS·S(순환 포함) 21      0.621      0.512
+     oracle rt      A·AS(거리) 12      0.702      0.567
+     oracle rt A·AS·S(순환 포함) 21      0.619      0.552
+   oracle post      A·AS(거리) 12      0.619      0.503
+   oracle post A·AS·S(순환 포함) 21      0.557      0.500
+       hard rt      A·AS(거리) 12      0.730      0.568
+       hard rt A·AS·S(순환 포함) 21      0.669      0.552
+     hard post      A·AS(거리) 12      0.655      0.507
+     hard post A·AS·S(순환 포함) 21      0.610      0.505
+       soft rt      A·AS(거리) 12      0.752      0.602
+       soft rt A·AS·S(순환 포함) 21      0.700      0.543
+     soft post      A·AS(거리) 12      0.653      0.550
+     soft post A·AS·S(순환 포함) 21      0.627      0.511
+  none [trans]      A·AS(거리) 12      0.594      0.566
+  none [trans] A·AS·S(순환 포함) 21      0.628      0.602
+    none [run]      A·AS(거리) 12      0.627      0.534
+    none [run] A·AS·S(순환 포함) 21      0.629      0.539
+    none [loc]      A·AS(거리) 12      0.751      0.492
+    none [loc] A·AS·S(순환 포함) 21      0.693      0.491
+  none [whole]      A·AS(거리) 12      0.593      0.565
+  none [whole] A·AS·S(순환 포함) 21      0.586      0.551
+    none [gap]      A·AS(거리) 12      0.457      0.500
+    none [gap] A·AS·S(순환 포함) 21      0.501      0.500
+   none [trip]      A·AS(거리) 12      0.576      0.500
+   none [trip] A·AS·S(순환 포함) 21      0.563      0.500
+oracle [trans]      A·AS(거리) 12      0.610      0.568
+oracle [trans] A·AS·S(순환 포함) 21      0.647      0.581
+  oracle [run]      A·AS(거리) 12      0.609      0.494
+  oracle [run] A·AS·S(순환 포함) 21      0.635      0.517
+  oracle [loc]      A·AS(거리) 12      0.742      0.535
+  oracle [loc] A·AS·S(순환 포함) 21      0.647      0.516
+oracle [whole]      A·AS(거리) 12      0.587      0.562
+oracle [whole] A·AS·S(순환 포함) 21      0.593      0.546
+  oracle [gap]      A·AS(거리) 12      0.416      0.477
+  oracle [gap] A·AS·S(순환 포함) 21      0.406      0.473
+ oracle [trip]      A·AS(거리) 12      0.472      0.477
+ oracle [trip] A·AS·S(순환 포함) 21      0.420      0.474
+묶음 후보 606행 (19.4분)
+            점수   묶음  사고수    실제    위약     차이     p  차이_대비none  p_대비none
+       기준: 급정지  sea   25 0.568 0.356  0.212 0.012        NaN       NaN
+       기준: 급정지 port   42 0.301 0.298  0.003 0.965        NaN       NaN
+       none rt  sea   25 0.673 0.590  0.084 0.037      0.000       NaN
+       none rt port   42 0.444 0.510 -0.065 0.231      0.000       NaN
+     none post  sea   25 0.696 0.627  0.069 0.191      0.000       NaN
+     none post port   42 0.466 0.557 -0.092 0.103      0.000       NaN
+     oracle rt  sea   25 0.678 0.606  0.072 0.195     -0.012     0.674
+     oracle rt port   42 0.460 0.484 -0.023 0.657      0.042     0.025
+   oracle post  sea   25 0.694 0.627  0.067 0.306     -0.002     0.956
+   oracle post port   42 0.465 0.520 -0.056 0.297      0.036     0.011
+       hard rt  sea   25 0.677 0.578  0.099 0.055      0.016     0.603
+       hard rt port   42 0.453 0.514 -0.062 0.287      0.004     0.819
+     hard post  sea   25 0.694 0.623  0.071 0.254      0.002     0.937
+     hard post port   42 0.457 0.554 -0.096 0.099     -0.005     0.720
+       soft rt  sea   25 0.675 0.587  0.088 0.039      0.005     0.755
+       soft rt port   42 0.452 0.507 -0.056 0.310      0.010     0.257
+     soft post  sea   25 0.698 0.626  0.071 0.210      0.002     0.851
+     soft post port   42 0.465 0.552 -0.087 0.125      0.004     0.525
+  none [trans]  sea   25 0.736 0.670  0.066 0.138        NaN       NaN
+  none [trans] port   42 0.507 0.582 -0.075 0.205        NaN       NaN
+    none [run]  sea   25 0.584 0.457  0.128 0.040        NaN       NaN
+    none [run] port   42 0.364 0.411 -0.046 0.471        NaN       NaN
+    none [loc]  sea   25 0.554 0.494  0.060 0.207        NaN       NaN
+    none [loc] port   42 0.343 0.410 -0.067 0.139        NaN       NaN
+  none [whole]  sea   25 0.676 0.494  0.182 0.021        NaN       NaN
+  none [whole] port   42 0.390 0.450 -0.060 0.383        NaN       NaN
+    none [gap]  sea   25 0.111 0.180 -0.069 0.393        NaN       NaN
+    none [gap] port   42 0.168 0.187 -0.018 0.680        NaN       NaN
+   none [trip]  sea   25 0.468 0.476 -0.007 0.931        NaN       NaN
+   none [trip] port   42 0.289 0.411 -0.122 0.035        NaN       NaN
+oracle [trans]  sea   25 0.745 0.665  0.079 0.076        NaN       NaN
+oracle [trans] port   42 0.508 0.585 -0.078 0.193        NaN       NaN
+  oracle [run]  sea   25 0.591 0.456  0.135 0.026        NaN       NaN
+  oracle [run] port   42 0.363 0.409 -0.046 0.483        NaN       NaN
+  oracle [loc]  sea   25 0.546 0.524  0.023 0.705        NaN       NaN
+  oracle [loc] port   42 0.335 0.366 -0.031 0.466        NaN       NaN
+oracle [whole]  sea   25 0.676 0.494  0.182 0.020        NaN       NaN
+oracle [whole] port   42 0.392 0.450 -0.058 0.396        NaN       NaN
+  oracle [gap]  sea   25 0.111 0.180 -0.069 0.393        NaN       NaN
+  oracle [gap] port   42 0.168 0.187 -0.018 0.690        NaN       NaN
+ oracle [trip]  sea   25 0.468 0.476 -0.007 0.927        NaN       NaN
+ oracle [trip] port   42 0.289 0.410 -0.121 0.038        NaN       NaN
+✅ 완료 19.4분

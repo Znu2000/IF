@@ -53,6 +53,7 @@ N_BINS = 6                 # 1시간 = 6구간(~10분) 중앙값 평활
 STATIONARY_RANGE_M = 100.0 # 평활 경로 범위 < 100m → 정박
 MOVE_STEP_M = 10.0         # 방향 계산용 최소 이동 step
 K_STEP = 5                 # 지터 강건 k-step (민성)
+K_MINUTES = float(os.environ.get("SED_K_MINUTES", 0))  # 0 이 아니면 k 를 점 개수 대신 이 분만큼의 창으로 (보고 주기 보정 실험)
 STAY_R_M = 30.0            # 체류점 반경 (3σ, σ≈10m)
 STAY_MIN_PTS = 3           # 체류점 최소 점 수(≈3분)
 STRAIGHT_TURN_DEG = 15.0   # 직선 투망 판정 회전각
